@@ -1,0 +1,102 @@
+// ---------------------------------------------------------------------------
+// Esquema de datos de SIGA-D1
+//
+// Nota sobre enums: SQLite no soporta enums nativos en Prisma. Los campos
+// `tipo` y `rol` se modelan como String y se validan en la capa de aplicacion
+// (Zod + constantes en src/domain/constantes.js). Al migrar a PostgreSQL se
+// pueden convertir a `enum` sin tocar la logica de negocio.
+// ---------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Proveedor {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+
+  // Calculado, NO editable a mano. Guarda el ultimo % de cumplimiento
+  // (total entregado / total pedido * 100). El historial completo vive en
+  // CumplimientoHistorial para poder graficar la tendencia.
+  porcentajeCumplimiento Float @default(100)
+
+  productos             Producto[]
+  historialCumplimiento CumplimientoHistorial[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Producto {
+  id          Int    @id @default(autoincrement())
+  nombre      String
+  categoria   String
+  stockActual Int    @default(0)
+
+  proveedor   Proveedor @relation(fields: [proveedorId], references: [id])
+  proveedorId Int
+
+  movimientos Movimiento[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([proveedorId])
+}
+
+model Movimiento {
+  id Int @id @default(autoincrement())
+
+  producto   Producto @relation(fields: [productoId], references: [id])
+  productoId Int
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId Int
+
+  tipo     String // ENTRADA | SALIDA
+  cantidad Int // unidades efectivamente movidas (lo entregado, en una ENTRADA)
+
+  // Solo aplica a ENTRADA: unidades que se le pidieron al proveedor.
+  // Permite comparar lo pedido vs lo entregado -> confiabilidad del proveedor.
+  cantidadSolicitada Int?
+
+  fecha     DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([productoId])
+  @@index([tipo])
+  @@index([fecha])
+}
+
+model Usuario {
+  id           Int    @id @default(autoincrement())
+  nombre       String @unique
+  passwordHash String
+  rol          String // EMPLEADO | ADMINISTRADOR
+
+  movimientos Movimiento[]
+
+  createdAt DateTime @default(now())
+}
+
+// Foto historica del % de cumplimiento de un proveedor. Se agrega una fila
+// cada vez que se registra una ENTRADA asociada a ese proveedor.
+model CumplimientoHistorial {
+  id Int @id @default(autoincrement())
+
+  proveedor   Proveedor @relation(fields: [proveedorId], references: [id])
+  proveedorId Int
+
+  porcentaje     Float
+  totalPedido    Int
+  totalEntregado Int
+
+  fecha DateTime @default(now())
+
+  @@index([proveedorId])
+}
