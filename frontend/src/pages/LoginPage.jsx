@@ -78,7 +78,7 @@ export default function LoginPage() {
             >
               A partir de los movimientos de entrada y salida, SIGA&#8209;D1 anticipa el
               quiebre de inventario y mide la confiabilidad de cada proveedor para la
-              tienda D1 San Mateo.
+              tienda D1.
             </p>
 
             <div className="mt-10 space-y-5">

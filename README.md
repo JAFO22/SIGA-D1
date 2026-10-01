@@ -1,6 +1,6 @@
 # SIGA-D1
 
-Sistema de inventario y gestión de abastecimiento para la tienda D1 San Mateo (Fusagasugá).
+Sistema de inventario y gestión de abastecimiento para la tienda D1.
 
 A partir de una sola fuente de datos —los movimientos de entrada y salida que registra el
 personal— el sistema deriva dos análisis en paralelo:

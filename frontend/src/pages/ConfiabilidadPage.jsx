@@ -45,7 +45,7 @@ export default function ConfiabilidadPage() {
   useResizeNudge(serie.length);
 
   return (
-    <div>
+    <div className="space-y-8">
       <PageHeader
         title="Confiabilidad de proveedor"
         description="Cumplimiento histórico de cada proveedor: unidades entregadas frente a unidades solicitadas, y su evolución en el tiempo."
@@ -58,8 +58,8 @@ export default function ConfiabilidadPage() {
         emptyNode={<EmptyState icon={IconTruck} title="Sin proveedores registrados" />}
         onRetry={recargar}
         skeleton={
-          <div className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-8">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               <div className="skeleton h-44 rounded-xl" />
               <div className="skeleton h-44 rounded-xl" />
               <div className="skeleton h-44 rounded-xl" />
@@ -68,64 +68,83 @@ export default function ConfiabilidadPage() {
           </div>
         }
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {proveedores.map((p, i) => (
-            <ProveedorCard key={p.id} proveedor={p} index={i} />
-          ))}
-        </div>
-
-        <Card
-          className="mt-6"
-          title="Evolución del cumplimiento"
-          subtitle="Recalculado en cada entrada registrada"
-        >
-          {serie.length === 0 ? (
-            <p className="py-10 text-center text-sm text-slate-400">
-              Aún no hay entradas con cantidad solicitada para trazar la evolución.
-            </p>
-          ) : (
-            <div className="h-80 w-full">
-              <ResponsiveContainer>
-                <LineChart data={serie} margin={{ top: 8, right: 12, bottom: 4, left: -8 }}>
-                  <CartesianGrid strokeDasharray="4 4" stroke="#eef2f7" vertical={false} />
-                  <XAxis
-                    dataKey="fecha"
-                    tickFormatter={fechaCorta}
-                    tick={{ fontSize: 11, fill: '#94a3b8' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[50, 105]}
-                    tick={{ fontSize: 11, fill: '#94a3b8' }}
-                    tickFormatter={(v) => `${v}%`}
-                    axisLine={false}
-                    tickLine={false}
-                    width={44}
-                  />
-                  <Tooltip
-                    content={<ChartTooltip unidad="%" labelFormatter={fechaCorta} />}
-                    cursor={{ stroke: '#cbd5e1', strokeDasharray: 4 }}
-                  />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-                  {proveedores.map((p, i) => (
-                    <Line
-                      key={p.id}
-                      type="monotone"
-                      dataKey={p.nombre}
-                      stroke={COLORES[i % COLORES.length]}
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ r: 4 }}
-                      connectNulls
-                      isAnimationActive={false}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+        <div className="space-y-8">
+          {/* Sección 1: Cumplimiento individual por proveedor */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Cumplimiento por proveedor</h3>
+              <p className="text-xs text-slate-500">
+                Porcentaje de entrega y nivel de confiabilidad calculado para cada proveedor.
+              </p>
             </div>
-          )}
-        </Card>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {proveedores.map((p, i) => (
+                <ProveedorCard key={p.id} proveedor={p} index={i} />
+              ))}
+            </div>
+          </div>
+
+          {/* Sección 2: Evolución histórica separada */}
+          <div className="space-y-4 pt-4 border-t border-slate-200/70">
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">Evolución en el tiempo</h3>
+              <p className="text-xs text-slate-500">
+                Comparativa cronológica del cumplimiento recalculado con cada entrada registrada.
+              </p>
+            </div>
+            <Card
+              title="Histórico de entregas vs pedidos"
+              subtitle="Trazabilidad por proveedor a lo largo del tiempo"
+            >
+              {serie.length === 0 ? (
+                <p className="py-10 text-center text-sm text-slate-400">
+                  Aún no hay entradas con cantidad solicitada para trazar la evolución.
+                </p>
+              ) : (
+                <div className="h-80 w-full">
+                  <ResponsiveContainer>
+                    <LineChart data={serie} margin={{ top: 8, right: 12, bottom: 4, left: -8 }}>
+                      <CartesianGrid strokeDasharray="4 4" stroke="#eef2f7" vertical={false} />
+                      <XAxis
+                        dataKey="fecha"
+                        tickFormatter={fechaCorta}
+                        tick={{ fontSize: 11, fill: '#94a3b8' }}
+                        axisLine={{ stroke: '#e2e8f0' }}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        domain={[50, 105]}
+                        tick={{ fontSize: 11, fill: '#94a3b8' }}
+                        tickFormatter={(v) => `${v}%`}
+                        axisLine={false}
+                        tickLine={false}
+                        width={44}
+                      />
+                      <Tooltip
+                        content={<ChartTooltip unidad="%" labelFormatter={fechaCorta} />}
+                        cursor={{ stroke: '#cbd5e1', strokeDasharray: 4 }}
+                      />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
+                      {proveedores.map((p, i) => (
+                        <Line
+                          key={p.id}
+                          type="monotone"
+                          dataKey={p.nombre}
+                          stroke={COLORES[i % COLORES.length]}
+                          strokeWidth={2}
+                          dot={false}
+                          activeDot={{ r: 4 }}
+                          connectNulls
+                          isAnimationActive={false}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </Card>
+          </div>
+        </div>
       </DataState>
     </div>
   );
@@ -180,7 +199,8 @@ function ProveedorCard({ proveedor, index }) {
       </div>
 
       {puntos.length > 1 && (
-        <div className="mt-3">
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <p className="mb-1 text-[11px] font-medium text-slate-400">Tendencia histórica</p>
           <Sparkline data={puntos} width={260} height={36} color={meta.color} />
         </div>
       )}

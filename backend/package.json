@@ -1,7 +1,7 @@
 {
   "name": "siga-d1-backend",
   "version": "1.0.0",
-  "description": "API REST de SIGA-D1 - sistema de inventario para la tienda D1 San Mateo (Fusagasuga)",
+  "description": "API REST de SIGA-D1 - sistema de inventario para la tienda D1",
   "type": "module",
   "main": "src/server.js",
   "engines": {

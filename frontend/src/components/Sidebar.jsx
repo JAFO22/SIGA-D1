@@ -8,6 +8,7 @@ import {
   IconMovements,
   IconCatalog,
   IconTruck,
+  IconUsers,
 } from './icons.jsx';
 
 export const NAV = [
@@ -16,6 +17,7 @@ export const NAV = [
   { to: '/movimientos', label: 'Movimientos', icon: IconMovements, roles: [ROLES.ADMINISTRADOR, ROLES.EMPLEADO] },
   { to: '/catalogo', label: 'Catálogo', icon: IconCatalog, roles: [ROLES.ADMINISTRADOR] },
   { to: '/confiabilidad', label: 'Confiabilidad', icon: IconTruck, roles: [ROLES.ADMINISTRADOR] },
+  { to: '/usuarios', label: 'Usuarios', icon: IconUsers, roles: [ROLES.ADMINISTRADOR] },
 ];
 
 export default function Sidebar() {
@@ -23,7 +25,7 @@ export default function Sidebar() {
   const items = NAV.filter((e) => e.roles.includes(usuario.rol));
 
   return (
-    <aside className="hidden w-64 shrink-0 flex-col bg-ink-900 md:flex">
+    <aside className="hidden h-screen w-64 shrink-0 flex-col sticky top-0 bg-ink-900 md:flex">
       {}
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-5">
         <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-sm font-bold text-white shadow-glow">
@@ -31,12 +33,12 @@ export default function Sidebar() {
         </span>
         <div className="leading-tight">
           <p className="text-sm font-semibold text-white tracking-tight">SIGA&#8288;-&#8288;D1</p>
-          <p className="text-[11px] text-slate-500">Tienda San Mateo</p>
+          <p className="text-[11px] text-slate-500">Tienda D1</p>
         </div>
       </div>
 
       {}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {items.map((e) => (
           <NavLink
             key={e.to}
@@ -69,8 +71,7 @@ export default function Sidebar() {
 
       {}
       <div className="border-t border-white/[0.06] px-5 py-4">
-        <p className="text-[10px] uppercase tracking-wider text-slate-600">Tienda D1</p>
-        <p className="mt-1 text-[11px] text-slate-500">San Mateo · Fusagasugá</p>
+        <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Tienda D1</p>
       </div>
     </aside>
   );

@@ -69,3 +69,10 @@ export const IconClock = (p) => (
 export const IconSpark = (p) => (
   <Svg {...p}><path d="M12 3v4" /><path d="M12 17v4" /><path d="M5 12H3" /><path d="M21 12h-2" /><path d="m6.3 6.3 1.4 1.4" /><path d="m16.3 16.3 1.4 1.4" /><path d="m17.7 6.3-1.4 1.4" /><path d="m7.7 16.3-1.4 1.4" /></Svg>
 );
+export const IconUsers = (p) => (
+  <Svg {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></Svg>
+);
+export const IconUserPlus = (p) => (
+  <Svg {...p}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" x2="19" y1="8" y2="14" /><line x1="22" x2="16" y1="11" y2="11" /></Svg>
+);
+

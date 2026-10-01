@@ -39,7 +39,7 @@ export default function DashboardPage() {
     <div>
       <PageHeader
         title="Panel general"
-        description="Estado del inventario, riesgo de quiebre y actividad reciente de la tienda D1 San Mateo."
+        description="Estado del inventario, riesgo de quiebre y actividad reciente de la tienda D1."
       />
 
       <DataState

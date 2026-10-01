@@ -13,10 +13,10 @@ export default function Layout() {
   const actual = items.find((e) => location.pathname.startsWith(e.to));
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-slate-50">
       <Sidebar />
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col h-screen overflow-y-auto">
         {}
         <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl sm:px-6">
           <div className="flex items-center gap-2 md:hidden">

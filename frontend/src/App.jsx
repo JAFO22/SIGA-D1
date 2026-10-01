@@ -10,6 +10,7 @@ import AlertasPage from './pages/AlertasPage.jsx';
 import MovimientosPage from './pages/MovimientosPage.jsx';
 import CatalogoPage from './pages/CatalogoPage.jsx';
 import ConfiabilidadPage from './pages/ConfiabilidadPage.jsx';
+import UsuariosPage from './pages/UsuariosPage.jsx';
 
 export default function App() {
   const { usuario } = useAuth();
@@ -55,6 +56,14 @@ export default function App() {
             element={
               <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}>
                 <ConfiabilidadPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="usuarios"
+            element={
+              <ProtectedRoute roles={[ROLES.ADMINISTRADOR]}>
+                <UsuariosPage />
               </ProtectedRoute>
             }
           />
