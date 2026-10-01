@@ -1,5 +1,3 @@
-// Utilidades de formato para la interfaz (locale es-CO).
-
 const fmtNumero = new Intl.NumberFormat('es-CO');
 const fmtDecimal = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 });
 

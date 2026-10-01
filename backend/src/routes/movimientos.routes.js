@@ -11,7 +11,6 @@ const router = Router();
 
 router.use(autenticar);
 
-// Empleado y Administrador pueden registrar y consultar movimientos.
 router.get(
   '/',
   validate(listarMovimientosQuery, 'query'),

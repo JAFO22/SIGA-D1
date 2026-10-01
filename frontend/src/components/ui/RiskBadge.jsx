@@ -1,10 +1,6 @@
 import { RIESGO_META } from '../../lib/constantes.js';
 import { cn } from '../../lib/cn.js';
 
-/**
- * Insignia de nivel de riesgo de quiebre.
- * `size`: 'sm' | 'md'. `withDetail` muestra la descripción en vez del nivel.
- */
 export default function RiskBadge({ estado, size = 'md', withDetail = false }) {
   const meta = RIESGO_META[estado] ?? RIESGO_META.VERDE;
   return (

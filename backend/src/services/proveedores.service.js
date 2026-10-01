@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma.js';
+import { env } from '../config/env.js';
 import { AppError } from '../utils/AppError.js';
 import { TIPO_MOVIMIENTO } from '../domain/constantes.js';
 import { calcularCumplimiento } from '../domain/calculos.js';
@@ -19,7 +20,6 @@ export async function obtenerProveedor(id) {
   return proveedor;
 }
 
-/** Comprobacion de existencia barata (no arrastra productos ni historial). */
 async function asegurarProveedorExiste(id, cliente = prisma) {
   const existe = await cliente.proveedor.findUnique({
     where: { id },
@@ -37,11 +37,6 @@ export async function actualizarProveedor(id, { nombre }) {
   return prisma.proveedor.update({ where: { id }, data: { nombre } });
 }
 
-/**
- * Un proveedor con productos no se borra: dejaria productos huerfanos.
- * Comprobacion, limpieza de historial y borrado van en una sola transaccion
- * para que no quede a medias ni se cuele un producto entre medias.
- */
 export async function eliminarProveedor(id) {
   return prisma.$transaction(async (tx) => {
     const proveedor = await tx.proveedor.findUnique({
@@ -57,23 +52,12 @@ export async function eliminarProveedor(id) {
         409,
       );
     }
-    // El historial no tiene cascada en SQLite: se limpia explicitamente.
+
     await tx.cumplimientoHistorial.deleteMany({ where: { proveedorId: id } });
     return tx.proveedor.delete({ where: { id } });
   });
 }
 
-/**
- * Recalcula el % de cumplimiento del proveedor con TODAS las entradas de sus
- * productos y guarda una foto en el historial.
- *
- * Se invoca despues de registrar cada movimiento de ENTRADA. Acepta un cliente
- * de transaccion (`tx`) para poder ejecutarse dentro de la misma transaccion
- * que crea el movimiento.
- *
- * @param {number} proveedorId
- * @param {import('@prisma/client').Prisma.TransactionClient} [cliente]
- */
 export async function recalcularCumplimiento(proveedorId, cliente = prisma) {
   const entradas = await cliente.movimiento.findMany({
     where: { tipo: TIPO_MOVIMIENTO.ENTRADA, producto: { proveedorId } },
@@ -100,35 +84,38 @@ export async function recalcularCumplimiento(proveedorId, cliente = prisma) {
 
 export async function historialCumplimiento(id) {
   await asegurarProveedorExiste(id);
-  return prisma.cumplimientoHistorial.findMany({
+  const puntos = await prisma.cumplimientoHistorial.findMany({
     where: { proveedorId: id },
-    orderBy: { fecha: 'asc' },
+    orderBy: { fecha: 'desc' },
+    take: env.historial.puntosDeTendencia,
   });
+  return puntos.reverse();
 }
 
-/**
- * Vista para la pantalla "Confiabilidad de proveedor": % actual de cada
- * proveedor + su tendencia en el tiempo (para graficar).
- */
 export async function confiabilidadGeneral() {
   const proveedores = await prisma.proveedor.findMany({
     orderBy: { nombre: 'asc' },
     include: {
       _count: { select: { productos: true } },
-      historialCumplimiento: { orderBy: { fecha: 'asc' } },
+      historialCumplimiento: {
+        orderBy: { fecha: 'desc' },
+        take: env.historial.puntosDeTendencia,
+      },
     },
   });
 
-  return proveedores.map((p) => ({
-    id: p.id,
-    nombre: p.nombre,
-    porcentajeCumplimiento: p.porcentajeCumplimiento,
-    productos: p._count.productos,
-    tendencia: p.historialCumplimiento.map((h) => ({
-      fecha: h.fecha,
-      porcentaje: h.porcentaje,
-      totalPedido: h.totalPedido,
-      totalEntregado: h.totalEntregado,
-    })),
+  return proveedores.map((proveedor) => ({
+    id: proveedor.id,
+    nombre: proveedor.nombre,
+    porcentajeCumplimiento: proveedor.porcentajeCumplimiento,
+    productos: proveedor._count.productos,
+    tendencia: proveedor.historialCumplimiento
+      .map((punto) => ({
+        fecha: punto.fecha,
+        porcentaje: punto.porcentaje,
+        totalPedido: punto.totalPedido,
+        totalEntregado: punto.totalEntregado,
+      }))
+      .reverse(),
   }));
 }

@@ -5,7 +5,6 @@ import * as dashboardController from '../controllers/dashboard.controller.js';
 
 const router = Router();
 
-// El dashboard consolidado es una herramienta de decision del ADMINISTRADOR.
 router.get(
   '/',
   autenticar,

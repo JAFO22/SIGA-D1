@@ -1,6 +1,5 @@
 import { cn } from '../../lib/cn.js';
 
-// Superficie base para agrupar contenido. Cabecera opcional con título y acción.
 export default function Card({
   title,
   subtitle,

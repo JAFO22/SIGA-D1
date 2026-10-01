@@ -17,7 +17,7 @@ export default function Layout() {
       <Sidebar />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Header */}
+        {}
         <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-slate-200/80 bg-white/80 px-4 py-3 backdrop-blur-xl sm:px-6">
           <div className="flex items-center gap-2 md:hidden">
             <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-500 text-xs font-bold text-white">
@@ -48,7 +48,7 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* Mobile nav */}
+        {}
         <nav className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 md:hidden">
           {items.map((e) => (
             <NavLink
@@ -66,9 +66,9 @@ export default function Layout() {
           ))}
         </nav>
 
-        {/* Main content */}
+        {}
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-          {/* La clave fuerza el reinicio de la animación CSS en cada ruta. */}
+          {}
           <div key={location.pathname} className="animate-fade-in">
             <Outlet />
           </div>

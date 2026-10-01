@@ -3,10 +3,6 @@ import Modal from './Modal.jsx';
 import Alerta from './Alerta.jsx';
 import Button from './Button.jsx';
 
-/**
- * Confirmación para acciones destructivas. `onConfirm` puede devolver una
- * promesa; si lanza, el error se muestra dentro del diálogo.
- */
 export default function ConfirmDialog({ open, title, message, confirmLabel = 'Eliminar', onConfirm, onClose }) {
   const [error, setError] = useState(null);
   const [procesando, setProcesando] = useState(false);

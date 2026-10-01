@@ -7,5 +7,5 @@ export async function listarAlertas() {
 
 export async function obtenerConfigSemaforo() {
   const { data } = await apiClient.get('/alertas/config');
-  return data; // { diasAmarillo, diasRojo, ventasMuestra }
+  return data;
 }

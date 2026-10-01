@@ -7,7 +7,7 @@ export const listar = asyncHandler(async (req, res) => {
 });
 
 export const registrar = asyncHandler(async (req, res) => {
-  // El autor del movimiento sale del token, no del body (no se puede falsear).
+
   const movimiento = await movimientosService.registrarMovimiento({
     ...req.body,
     usuarioId: req.usuario.id,

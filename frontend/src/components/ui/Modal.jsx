@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IconClose } from '../icons.jsx';
 
-// Diálogo modal con animación (backdrop con blur + panel tipo spring).
 export default function Modal({ open, title, description, onClose, children, width = 'max-w-lg' }) {
   useEffect(() => {
     if (!open) return undefined;

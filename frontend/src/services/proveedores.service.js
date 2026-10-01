@@ -19,7 +19,6 @@ export async function eliminarProveedor(id) {
   await apiClient.delete(`/proveedores/${id}`);
 }
 
-// % de cumplimiento actual + tendencia historica de cada proveedor.
 export async function obtenerConfiabilidad() {
   const { data } = await apiClient.get('/proveedores/confiabilidad');
   return data;

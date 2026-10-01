@@ -1,11 +1,9 @@
 import { cn } from '../../lib/cn.js';
 
-// Placeholder animado (efecto shimmer definido en index.css).
 export function Skeleton({ className }) {
   return <span className={cn('skeleton block', className)} />;
 }
 
-// Skeleton con forma de tabla, para las vistas que cargan listados.
 export function TableSkeleton({ filas = 6, columnas = 4 }) {
   return (
     <div className="surface overflow-hidden">

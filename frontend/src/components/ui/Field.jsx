@@ -1,9 +1,5 @@
 import { cn } from '../../lib/cn.js';
 
-/**
- * Campo de formulario con etiqueta y error. Soporta <input> y <select>
- * (pasando `options: [{ value, label }]`).
- */
 export default function Field({
   label,
   name,

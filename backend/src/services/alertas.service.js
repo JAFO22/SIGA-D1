@@ -3,15 +3,10 @@ import { env } from '../config/env.js';
 import { TIPO_MOVIMIENTO } from '../domain/constantes.js';
 import { calcularSemaforo } from '../domain/calculos.js';
 
-/** Umbrales vigentes del semaforo (leidos de la configuracion, no fijos). */
 export function obtenerConfigSemaforo() {
   return { ...env.semaforo };
 }
 
-/**
- * Motor de alertas: evalua cada producto y le asigna un estado de semaforo
- * segun los dias de inventario que le quedan al ritmo de venta actual.
- */
 export async function evaluarProductos() {
   const config = env.semaforo;
 
@@ -19,7 +14,7 @@ export async function evaluarProductos() {
     orderBy: { nombre: 'asc' },
     include: {
       proveedor: { select: { id: true, nombre: true } },
-      // Solo las ultimas SALIDA: es la muestra para estimar el ritmo de venta.
+
       movimientos: {
         where: { tipo: TIPO_MOVIMIENTO.SALIDA },
         orderBy: { fecha: 'desc' },

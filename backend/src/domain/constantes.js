@@ -1,7 +1,3 @@
-// Constantes de dominio compartidas por toda la aplicacion.
-// Al no existir enums en SQLite, estas son la unica fuente de verdad de los
-// valores permitidos (se usan tanto en validacion Zod como en la logica).
-
 export const ROLES = Object.freeze({
   EMPLEADO: 'EMPLEADO',
   ADMINISTRADOR: 'ADMINISTRADOR',

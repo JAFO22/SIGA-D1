@@ -8,7 +8,6 @@ const ESTILOS = {
   aviso: 'bg-amber-50 text-amber-800 ring-amber-600/15',
 };
 
-// Aviso en línea (para formularios). Los mensajes efímeros de éxito usan toasts.
 export default function Alerta({ tipo = 'info', children, detalles }) {
   return (
     <div className={cn('flex gap-2.5 rounded-lg px-3.5 py-3 text-sm ring-1 ring-inset', ESTILOS[tipo])}>

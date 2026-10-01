@@ -1,6 +1,3 @@
-// Tooltip con estilo propio para las gráficas de Recharts.
-// Uso: <Tooltip content={<ChartTooltip unidad=" u" />} />
-
 export default function ChartTooltip({ active, payload, label, labelFormatter, unidad = '', valueFormatter }) {
   if (!active || !payload || payload.length === 0) return null;
 

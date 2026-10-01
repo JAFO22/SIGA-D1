@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react';
 import { cn } from '../../lib/cn.js';
 
-/**
- * Barra de progreso horizontal. Se anima con una transición CSS de `width` al
- * montar; un respaldo con setTimeout garantiza el ancho final aunque el
- * navegador tenga pausadas las animaciones por frame.
- *
- * `segments`: [{ value:0-100, className }]  — para barras apiladas.
- * `value` + `barClass`                      — para una sola barra.
- */
 export default function MeterBar({ value, barClass, segments, trackClass = 'bg-slate-100', className }) {
   const partes = segments ?? [{ value, className: barClass }];
   const [listo, setListo] = useState(false);

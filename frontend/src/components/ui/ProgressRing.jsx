@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/**
- * Anillo de progreso circular (0–100), para el % de cumplimiento del proveedor.
- * El trazo se rellena con una transición CSS al montar (fiable aunque el hilo
- * de animaciones JS esté pausado).
- */
 export default function ProgressRing({ value = 0, size = 64, stroke = 6, color = '#059669', children }) {
   const radio = (size - stroke) / 2;
   const circunferencia = 2 * Math.PI * radio;

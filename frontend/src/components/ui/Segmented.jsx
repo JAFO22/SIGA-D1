@@ -1,10 +1,6 @@
 import { motion } from 'framer-motion';
 import { cn } from '../../lib/cn.js';
 
-/**
- * Control segmentado (alternativa a un <select> de pocas opciones).
- * `options: [{ value, label, icon? }]`. El indicador se desliza entre opciones.
- */
 export default function Segmented({ options, value, onChange, name = 'seg' }) {
   return (
     <div className="inline-flex w-full rounded-lg border border-slate-200 bg-slate-100 p-1">

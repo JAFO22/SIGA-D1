@@ -7,7 +7,6 @@ const VARIANTES = {
   danger: 'btn-danger',
 };
 
-// Botón con variantes y estado de carga (spinner en línea).
 export default function Button({
   variant = 'primary',
   size,

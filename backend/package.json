@@ -1,7 +1,7 @@
 {
   "name": "siga-d1-backend",
   "version": "1.0.0",
-  "description": "API REST de SIGA-D1 - sistema de inventario inteligente para la tienda D1 San Mateo (Fusagasuga)",
+  "description": "API REST de SIGA-D1 - sistema de inventario para la tienda D1 San Mateo (Fusagasuga)",
   "type": "module",
   "main": "src/server.js",
   "engines": {
@@ -11,10 +11,11 @@
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
     "seed": "node prisma/seed.js",
-    "db:migrate": "prisma migrate dev --name init",
+    "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset --force",
     "db:studio": "prisma studio",
-    "test": "node --test"
+    "test": "node --test",
+    "db:deploy": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

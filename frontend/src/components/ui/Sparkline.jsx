@@ -1,6 +1,3 @@
-// Mini-gráfica de línea (sin ejes) para mostrar una tendencia en poco espacio.
-// SVG puro, sin dependencias.
-
 export default function Sparkline({ data = [], width = 120, height = 32, color = '#64748b', fill = true }) {
   if (!data || data.length < 2) {
     return <div style={{ width, height }} className="rounded bg-slate-100" />;

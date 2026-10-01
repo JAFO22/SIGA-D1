@@ -40,19 +40,19 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
-      {/* ── Panel de marca ── */}
+      {}
       <div className="login-aurora relative hidden overflow-hidden lg:block">
-        {/* Mesh gradient overlay */}
+        {}
         <div className="login-mesh" />
-        {/* Grid pattern */}
+        {}
         <div className="login-grid" />
 
-        {/* Floating orbs for depth */}
+        {}
         <div className="absolute left-[12%] top-[18%] h-72 w-72 rounded-full bg-brand-500/8 blur-[80px]" />
         <div className="absolute bottom-[20%] right-[15%] h-56 w-56 rounded-full bg-blue-500/6 blur-[60px]" />
 
         <div className="relative flex h-full flex-col justify-between p-12">
-          {/* Logo */}
+          {}
           <div className="flex items-center gap-3 animate-fade-in-down">
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-500 text-base font-bold text-white shadow-glow animate-pulse-brand">
               D1
@@ -63,7 +63,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Hero copy */}
+          {}
           <div className="max-w-md">
             <h1 className="animate-slide-up text-4xl font-bold leading-[1.15] tracking-tight text-white">
               Una sola fuente
@@ -100,14 +100,13 @@ export default function LoginPage() {
             </div>
           </div>
 
-
         </div>
       </div>
 
-      {/* ── Formulario ── */}
+      {}
       <div className="flex items-center justify-center bg-white px-6 py-12">
         <div className="w-full max-w-sm animate-scale-in">
-          {/* Logo para móvil */}
+          {}
           <div className="mb-8 lg:hidden">
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-500 text-lg font-bold text-white shadow-glow">
               D1

@@ -3,6 +3,18 @@ import { env, usaSecretoInseguro } from './config/env.js';
 import { prisma } from './lib/prisma.js';
 import { logger } from './lib/logger.js';
 
+const MARGEN_DE_CIERRE_MS = 10_000;
+
+function sinCredenciales(url) {
+  if (!url) return '(no configurada)';
+  try {
+    const { protocol, hostname, port, pathname } = new URL(url);
+    return `${protocol}//${hostname}${port ? `:${port}` : ''}${pathname}`;
+  } catch {
+    return '(no legible)';
+  }
+}
+
 const app = crearApp();
 const servidor = app.listen(env.puerto);
 
@@ -10,32 +22,25 @@ servidor.on('listening', () => {
   const { diasRojo, diasAmarillo, ventasMuestra } = env.semaforo;
 
   logger.linea();
-  logger.listo(`${logger.destacar('SIGA-D1 API')} escuchando en http://localhost:${env.puerto}`);
-  logger.info(`Entorno: ${env.entorno}  ·  Base de datos: ${env.databaseUrl}`);
-  logger.info(`CORS permitido para: ${env.corsOrigin}`);
+  logger.listo(`${logger.destacar('SIGA-D1 API')} escuchando en el puerto ${env.puerto}`);
+  logger.info(`Entorno: ${env.entorno}`);
+  logger.info(`Base de datos: ${sinCredenciales(env.databaseUrl)}`);
+  logger.info(`Origenes permitidos: ${env.origenesPermitidos.join(', ')}`);
   logger.info(
-    `Semaforo: rojo <= ${diasRojo} dias  ·  amarillo <= ${diasAmarillo} dias  ` +
-      `·  ritmo sobre las ultimas ${ventasMuestra} salidas`,
+    `Semaforo: rojo <= ${diasRojo} dias · amarillo <= ${diasAmarillo} dias · ` +
+      `ritmo sobre las ultimas ${ventasMuestra} salidas`,
   );
-  logger.linea(logger.atenuar('  Comprobar estado:  curl http://localhost:' + env.puerto + '/api/health'));
-  logger.linea(logger.atenuar('  Cargar datos demo: npm run seed'));
   logger.linea();
 
   if (usaSecretoInseguro) {
-    logger.aviso(
-      'JWT_SECRET es el valor de ejemplo. Sirve para el prototipo, pero define ' +
-        'uno propio en .env antes de exponer la API.',
-    );
+    logger.aviso('JWT_SECRET es el valor de ejemplo. Defina uno propio antes de exponer la API.');
   }
 });
 
-// Diagnostico claro cuando el puerto ya esta ocupado: es el fallo mas frecuente
-// al arrancar y el mensaje por defecto de Node no dice como resolverlo.
 servidor.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
     logger.error(
-      `El puerto ${env.puerto} ya esta en uso. Cierre el proceso que lo ocupa ` +
-        'o cambie PORT en el archivo .env',
+      `El puerto ${env.puerto} ya esta en uso. Cierre el proceso que lo ocupa o cambie PORT.`,
     );
   } else {
     logger.error('No se pudo iniciar el servidor', error);
@@ -43,38 +48,40 @@ servidor.on('error', (error) => {
   process.exit(1);
 });
 
-/**
- * Cierre ordenado: deja de aceptar peticiones, espera a las que estan en curso
- * y libera el pool de Prisma. Si algo se queda colgado, se fuerza la salida a
- * los 10 s para no dejar el proceso zombi.
- */
 let cerrando = false;
-async function apagar(senal) {
+
+async function apagar(motivo, codigoDeSalida = 0) {
   if (cerrando) return;
   cerrando = true;
 
-  logger.linea();
-  logger.info(`${senal} recibido. Cerrando conexiones...`);
+  logger.info(`${motivo} recibido. Cerrando conexiones...`);
 
-  const forzar = setTimeout(() => {
+  const salidaForzada = setTimeout(() => {
     logger.aviso('El cierre tardo demasiado. Forzando salida.');
     process.exit(1);
-  }, 10_000);
-  forzar.unref();
+  }, MARGEN_DE_CIERRE_MS);
+  salidaForzada.unref();
 
   servidor.close(async () => {
-    await prisma.$disconnect();
+    try {
+      await prisma.$disconnect();
+    } catch (error) {
+      logger.error('Fallo al cerrar la conexion con la base de datos', error);
+    }
     logger.listo('Servidor detenido correctamente.');
-    process.exit(0);
+    process.exit(codigoDeSalida);
   });
 }
 
 process.on('SIGINT', () => apagar('SIGINT'));
 process.on('SIGTERM', () => apagar('SIGTERM'));
 
-// Una promesa rechazada sin capturar deja la app en estado indefinido: se
-// registra con detalle y se cierra de forma ordenada.
 process.on('unhandledRejection', (causa) => {
   logger.error('Promesa rechazada sin gestionar', causa);
-  apagar('unhandledRejection');
+  apagar('unhandledRejection', 1);
+});
+
+process.on('uncaughtException', (causa) => {
+  logger.error('Excepcion no capturada', causa);
+  apagar('uncaughtException', 1);
 });

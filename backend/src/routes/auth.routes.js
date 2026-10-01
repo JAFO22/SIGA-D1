@@ -7,7 +7,6 @@ import * as authController from '../controllers/auth.controller.js';
 
 const router = Router();
 
-// Limita intentos de login para mitigar fuerza bruta.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 20,

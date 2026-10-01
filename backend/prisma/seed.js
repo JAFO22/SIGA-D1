@@ -1,12 +1,3 @@
-// ---------------------------------------------------------------------------
-// Datos de prueba (seed) que reflejan el caso real: tienda D1 San Mateo
-// (Fusagasuga). Genera ~30 dias de movimientos para que el sistema se vea
-// poblado desde el primer arranque, con productos en verde, amarillo y rojo,
-// y proveedores con distinto nivel de cumplimiento.
-//
-// Uso:  npm run seed        (o automatico con `npm run db:reset`)
-// ---------------------------------------------------------------------------
-
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { ROLES, TIPO_MOVIMIENTO } from '../src/domain/constantes.js';
@@ -15,10 +6,9 @@ import { calcularCumplimiento } from '../src/domain/calculos.js';
 const prisma = new PrismaClient();
 
 const DIAS_HISTORIAL = 30;
-const DIAS_CAMION = new Set([1, 3, 5, 6]); // Lun, Mie, Vie, Sab (getDay(): Dom=0)
-const DIAS_SIN_RUIDO = 5; // los ultimos dias van sin ruido -> semaforo reproducible
+const DIAS_CAMION = new Set([1, 3, 5, 6]);
+const DIAS_SIN_RUIDO = 5;
 
-// RNG determinista (mulberry32): la semilla fija hace el seed reproducible.
 function crearRng(semilla) {
   let estado = semilla >>> 0;
   return function rng() {
@@ -33,24 +23,19 @@ const rng = crearRng(20260902);
 
 const enteroEntre = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
 
-// --- Definicion del catalogo ---------------------------------------------------
-// factorEntrega: fraccion de lo pedido que el proveedor suele entregar.
 const PROVEEDORES = [
   { nombre: 'Latti', factorEntrega: 0.97 },
   { nombre: 'Alpina', factorEntrega: 0.88 },
   { nombre: 'Colanta', factorEntrega: 0.72 },
 ];
 
-// ventaBase = ritmo de venta diario objetivo (u/dia).
-// stockObjetivo = stock con el que debe quedar el producto hoy; define su
-// semaforo:  stockObjetivo / ventaBase = dias de cobertura.
 const PRODUCTOS = [
-  { nombre: 'Leche entera bolsa 1L', categoria: 'Lacteos', proveedor: 'Latti', ventaBase: 45, stockObjetivo: 540 }, // 12 dias -> VERDE
-  { nombre: 'Leche deslactosada bolsa 1L', categoria: 'Lacteos', proveedor: 'Latti', ventaBase: 20, stockObjetivo: 80 }, // 4 dias -> AMARILLO
-  { nombre: 'Yogur bebible fresa 200ml', categoria: 'Lacteos', proveedor: 'Alpina', ventaBase: 30, stockObjetivo: 60 }, // 2 dias -> ROJO
-  { nombre: 'Leche entera caja 1L', categoria: 'Lacteos', proveedor: 'Alpina', ventaBase: 25, stockObjetivo: 300 }, // 12 dias -> VERDE
-  { nombre: 'Queso doble crema 500g', categoria: 'Lacteos', proveedor: 'Colanta', ventaBase: 12, stockObjetivo: 66 }, // 5.5 dias -> AMARILLO
-  { nombre: 'Mantequilla 250g', categoria: 'Lacteos', proveedor: 'Colanta', ventaBase: 9, stockObjetivo: 18 }, // 2 dias -> ROJO
+  { nombre: 'Leche entera bolsa 1L', categoria: 'Lacteos', proveedor: 'Latti', ventaBase: 45, stockObjetivo: 540 },
+  { nombre: 'Leche deslactosada bolsa 1L', categoria: 'Lacteos', proveedor: 'Latti', ventaBase: 20, stockObjetivo: 80 },
+  { nombre: 'Yogur bebible fresa 200ml', categoria: 'Lacteos', proveedor: 'Alpina', ventaBase: 30, stockObjetivo: 60 },
+  { nombre: 'Leche entera caja 1L', categoria: 'Lacteos', proveedor: 'Alpina', ventaBase: 25, stockObjetivo: 300 },
+  { nombre: 'Queso doble crema 500g', categoria: 'Lacteos', proveedor: 'Colanta', ventaBase: 12, stockObjetivo: 66 },
+  { nombre: 'Mantequilla 250g', categoria: 'Lacteos', proveedor: 'Colanta', ventaBase: 9, stockObjetivo: 18 },
 ];
 
 function fechaDia(offsetDesdeHoy) {
@@ -60,8 +45,16 @@ function fechaDia(offsetDesdeHoy) {
   return base;
 }
 
-async function limpiar() {
-  // Orden respetando las claves foraneas.
+const CONTRASENA_DEMO = { admin: 'admin123', empleado: 'empleado123' };
+
+const contrasenas = {
+  admin: process.env.SEED_ADMIN_PASSWORD || CONTRASENA_DEMO.admin,
+  empleado: process.env.SEED_EMPLEADO_PASSWORD || CONTRASENA_DEMO.empleado,
+};
+
+const forzarReinicio = process.env.SEED_FORZAR === 'true';
+
+async function vaciarBaseDeDatos() {
   await prisma.cumplimientoHistorial.deleteMany();
   await prisma.movimiento.deleteMany();
   await prisma.producto.deleteMany();
@@ -69,29 +62,60 @@ async function limpiar() {
   await prisma.usuario.deleteMany();
 }
 
-async function main() {
-  console.log('Limpiando base de datos...');
-  await limpiar();
+async function yaTieneDatos() {
+  return (await prisma.usuario.count()) > 0;
+}
 
-  // 1. Usuarios (contrasenas de ejemplo, documentadas en el README).
+function avisarSiHayContrasenasDemo() {
+  const usaDemo =
+    contrasenas.admin === CONTRASENA_DEMO.admin ||
+    contrasenas.empleado === CONTRASENA_DEMO.empleado;
+
+  if (usaDemo && process.env.NODE_ENV === 'production') {
+    console.warn(
+      'AVISO: se estan usando las contrasenas de demostracion. Defina ' +
+        'SEED_ADMIN_PASSWORD y SEED_EMPLEADO_PASSWORD, o cambielas tras el primer acceso.',
+    );
+  }
+}
+
+async function main() {
+  if (await yaTieneDatos()) {
+    if (!forzarReinicio) {
+      console.log('La base de datos ya tiene informacion: no se toca nada.');
+      console.log('Para regenerar los datos de ejemplo: SEED_FORZAR=true npm run seed');
+      return;
+    }
+    console.log('SEED_FORZAR activo: vaciando la base de datos...');
+    await vaciarBaseDeDatos();
+  }
+
+  avisarSiHayContrasenasDemo();
+
   console.log('Creando usuarios...');
   await prisma.usuario.createMany({
     data: [
-      { nombre: 'admin', rol: ROLES.ADMINISTRADOR, passwordHash: bcrypt.hashSync('admin123', 10) },
-      { nombre: 'empleado', rol: ROLES.EMPLEADO, passwordHash: bcrypt.hashSync('empleado123', 10) },
+      {
+        nombre: 'admin',
+        rol: ROLES.ADMINISTRADOR,
+        passwordHash: bcrypt.hashSync(contrasenas.admin, 10),
+      },
+      {
+        nombre: 'empleado',
+        rol: ROLES.EMPLEADO,
+        passwordHash: bcrypt.hashSync(contrasenas.empleado, 10),
+      },
     ],
   });
   const usuarios = await prisma.usuario.findMany();
   const idAdmin = usuarios.find((u) => u.rol === ROLES.ADMINISTRADOR).id;
   const idEmpleado = usuarios.find((u) => u.rol === ROLES.EMPLEADO).id;
 
-  // 2. Proveedores.
   console.log('Creando proveedores...');
   await prisma.proveedor.createMany({ data: PROVEEDORES.map((p) => ({ nombre: p.nombre })) });
   const proveedores = await prisma.proveedor.findMany();
   const proveedorPorNombre = Object.fromEntries(proveedores.map((p) => [p.nombre, p]));
 
-  // 3. Productos (ya con el stock objetivo de hoy).
   console.log('Creando productos...');
   await prisma.producto.createMany({
     data: PRODUCTOS.map((p) => ({
@@ -104,11 +128,10 @@ async function main() {
   const productos = await prisma.producto.findMany();
   const productoPorNombre = Object.fromEntries(productos.map((p) => [p.nombre, p]));
 
-  // 4. Movimientos de los ultimos 30 dias + historial de cumplimiento.
   console.log(`Generando ${DIAS_HISTORIAL} dias de movimientos...`);
   const movimientos = [];
   const historial = [];
-  const acumuladoProveedor = new Map(); // proveedorId -> {entradas:[]}
+  const acumuladoProveedor = new Map();
 
   for (const p of PROVEEDORES) {
     acumuladoProveedor.set(proveedorPorNombre[p.nombre].id, []);
@@ -123,8 +146,6 @@ async function main() {
       const producto = productoPorNombre[def.nombre];
       const proveedor = PROVEEDORES.find((pr) => pr.nombre === def.proveedor);
 
-      // ENTRADA: llega el camion. Se pide ~1.8 dias de venta y el proveedor
-      // entrega una fraccion (factorEntrega) -> de aqui sale su confiabilidad.
       if (esDiaCamion) {
         const solicitada = Math.round(def.ventaBase * 1.8);
         const factor = proveedor.factorEntrega + (rng() - 0.5) * 0.06;
@@ -141,8 +162,6 @@ async function main() {
           fecha: fechaEntrada,
         });
 
-        // Recalculo incremental del cumplimiento del proveedor (igual que en
-        // produccion: se recalcula y se guarda foto en cada ENTRADA).
         const lista = acumuladoProveedor.get(producto.proveedorId);
         lista.push({ cantidad: entregada, cantidadSolicitada: solicitada });
         const { porcentaje, totalPedido, totalEntregado } = calcularCumplimiento(lista);
@@ -155,12 +174,9 @@ async function main() {
         });
       }
 
-      // SALIDA: ventas del dia. Los ultimos dias van sin ruido para que el
-      // semaforo del arranque sea exactamente stockObjetivo / ventaBase.
       const ruido = sinRuido ? 0 : enteroEntre(-Math.ceil(def.ventaBase * 0.25), Math.ceil(def.ventaBase * 0.25));
       const cantidadVenta = Math.max(1, def.ventaBase + ruido);
-      // Hora temprana (9:00) para que un movimiento registrado hoy por el
-      // usuario aparezca de primero en "Actividad reciente".
+
       const fechaSalida = new Date(dia);
       fechaSalida.setHours(9, 0, 0, 0);
       movimientos.push({
@@ -178,7 +194,6 @@ async function main() {
   await prisma.movimiento.createMany({ data: movimientos });
   await prisma.cumplimientoHistorial.createMany({ data: historial });
 
-  // 5. Fijar el % de cumplimiento actual de cada proveedor (ultimo acumulado).
   for (const [proveedorId, entradas] of acumuladoProveedor.entries()) {
     const { porcentaje } = calcularCumplimiento(entradas);
     await prisma.proveedor.update({
@@ -187,7 +202,6 @@ async function main() {
     });
   }
 
-  // --- Resumen ---------------------------------------------------------------
   const resumenProv = await prisma.proveedor.findMany({ orderBy: { nombre: 'asc' } });
   console.log('\nSeed completado.');
   console.log('Usuarios de prueba creados (consultar credenciales con el administrador).');

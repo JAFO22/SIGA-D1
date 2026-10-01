@@ -9,10 +9,6 @@ const ACENTO = {
   marca: { valor: 'text-brand-600', icono: 'bg-brand-50 text-brand-600' },
 };
 
-/**
- * Tarjeta de indicador: número animado + etiqueta + icono.
- * `index` escalona la animación de entrada (CSS, siempre completa).
- */
 export default function StatCard({ label, value, detail, icon: Icon, accent = 'neutro', index = 0, decimals = 0, format }) {
   const a = ACENTO[accent] ?? ACENTO.neutro;
   return (

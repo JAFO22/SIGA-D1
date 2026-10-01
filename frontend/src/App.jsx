@@ -14,8 +14,6 @@ import ConfiabilidadPage from './pages/ConfiabilidadPage.jsx';
 export default function App() {
   const { usuario } = useAuth();
 
-  // Cada rol aterriza en la pantalla más útil: admin en el panel general,
-  // empleado en el tablero de riesgo de quiebre.
   const inicio = usuario?.rol === ROLES.ADMINISTRADOR ? '/dashboard' : '/alertas';
 
   return (

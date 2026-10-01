@@ -1,10 +1,7 @@
-// Autenticacion (JWT) y autorizacion (por rol).
-
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/AppError.js';
 
-/** Exige un JWT valido en la cabecera `Authorization: Bearer <token>`. */
 export function autenticar(req, _res, next) {
   const cabecera = req.headers.authorization || '';
   const [esquema, token] = cabecera.split(' ');
@@ -22,10 +19,6 @@ export function autenticar(req, _res, next) {
   }
 }
 
-/**
- * Exige que el usuario autenticado tenga uno de los roles indicados.
- * Debe usarse siempre despues de `autenticar`.
- */
 export const autorizar =
   (...rolesPermitidos) =>
   (req, _res, next) => {

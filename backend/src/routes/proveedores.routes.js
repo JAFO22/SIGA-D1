@@ -13,10 +13,6 @@ const router = Router();
 
 router.use(autenticar);
 
-// IMPORTANTE: '/confiabilidad' va antes que '/:id'. Express resuelve por orden
-// de declaracion; al reves, "confiabilidad" se leeria como un id y fallaria.
-
-// La confiabilidad es informacion de decision comercial: solo ADMINISTRADOR.
 router.get(
   '/confiabilidad',
   autorizar(ROLES.ADMINISTRADOR),
@@ -29,12 +25,9 @@ router.get(
   proveedoresController.historial,
 );
 
-// Lectura basica: cualquier usuario autenticado (el empleado necesita la lista
-// de proveedores para dar de alta un producto o interpretar un movimiento).
 router.get('/', proveedoresController.listar);
 router.get('/:id', validate(idParamSchema, 'params'), proveedoresController.obtener);
 
-// Escritura: solo ADMINISTRADOR.
 router.post(
   '/',
   autorizar(ROLES.ADMINISTRADOR),

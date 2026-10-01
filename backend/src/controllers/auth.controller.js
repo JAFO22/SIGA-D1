@@ -6,7 +6,6 @@ export const login = asyncHandler(async (req, res) => {
   res.json(resultado);
 });
 
-// Devuelve el usuario del token (util para rehidratar la sesion en el frontend).
 export const perfil = asyncHandler(async (req, res) => {
   res.json({ usuario: req.usuario });
 });

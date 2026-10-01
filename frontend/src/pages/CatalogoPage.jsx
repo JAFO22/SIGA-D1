@@ -22,7 +22,7 @@ export default function CatalogoPage() {
   const productos = useFetch(listarProductos, []);
   const proveedores = useFetch(listarProveedores, []);
 
-  const [dlgProducto, setDlgProducto] = useState(null); // { modo, item? }
+  const [dlgProducto, setDlgProducto] = useState(null);
   const [dlgProveedor, setDlgProveedor] = useState(null);
 
   const refrescar = () => {
@@ -135,7 +135,7 @@ export default function CatalogoPage() {
         </Card>
       </div>
 
-      {/* Producto: crear / editar */}
+      {}
       {(dlgProducto?.modo === 'crear' || dlgProducto?.modo === 'editar') && (
         <ProductoFormModal
           open
@@ -162,7 +162,7 @@ export default function CatalogoPage() {
         }}
       />
 
-      {/* Proveedor: crear / editar */}
+      {}
       {(dlgProveedor?.modo === 'crear' || dlgProveedor?.modo === 'editar') && (
         <ProveedorFormModal
           open

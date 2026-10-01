@@ -1,21 +1,53 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import * as authService from '../services/auth.service.js';
-import { TOKEN_KEY, USUARIO_KEY } from '../services/apiClient.js';
+import {
+  TOKEN_KEY,
+  USUARIO_KEY,
+  EVENTO_SESION_EXPIRADA,
+  limpiarSesionGuardada,
+} from '../services/apiClient.js';
+import { ROLES } from '../lib/constantes.js';
 
 const AuthContext = createContext(null);
 
-function leerUsuarioGuardado() {
+function leerCaducidadDelToken(token) {
   try {
-    const bruto = localStorage.getItem(USUARIO_KEY);
-    return bruto ? JSON.parse(bruto) : null;
+    const [, cargaUtil] = token.split('.');
+    const json = atob(cargaUtil.replace(/-/g, '+').replace(/_/g, '/'));
+    const { exp } = JSON.parse(json);
+    return typeof exp === 'number' ? exp * 1000 : null;
   } catch {
     return null;
   }
 }
 
+function recuperarSesionVigente() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const usuarioGuardado = localStorage.getItem(USUARIO_KEY);
+  if (!token || !usuarioGuardado) return null;
+
+  const caducaEn = leerCaducidadDelToken(token);
+  if (caducaEn === null || caducaEn <= Date.now()) {
+    limpiarSesionGuardada();
+    return null;
+  }
+
+  try {
+    return JSON.parse(usuarioGuardado);
+  } catch {
+    limpiarSesionGuardada();
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
-  // La sesion se rehidrata desde localStorage al cargar la app.
-  const [usuario, setUsuario] = useState(leerUsuarioGuardado);
+  const [usuario, setUsuario] = useState(recuperarSesionVigente);
+
+  useEffect(() => {
+    const alExpirarLaSesion = () => setUsuario(null);
+    window.addEventListener(EVENTO_SESION_EXPIRADA, alExpirarLaSesion);
+    return () => window.removeEventListener(EVENTO_SESION_EXPIRADA, alExpirarLaSesion);
+  }, []);
 
   const iniciarSesion = useCallback(async (nombre, password) => {
     const { token, usuario: datos } = await authService.login(nombre, password);
@@ -26,8 +58,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   const cerrarSesion = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USUARIO_KEY);
+    limpiarSesionGuardada();
     setUsuario(null);
   }, []);
 
@@ -36,7 +67,7 @@ export function AuthProvider({ children }) {
       usuario,
       iniciarSesion,
       cerrarSesion,
-      esAdministrador: usuario?.rol === 'ADMINISTRADOR',
+      esAdministrador: usuario?.rol === ROLES.ADMINISTRADOR,
     }),
     [usuario, iniciarSesion, cerrarSesion],
   );

@@ -1,7 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../utils/AppError.js';
 
-// Se devuelve siempre el proveedor "resumido" para no exponer datos de mas.
 const INCLUIR_PROVEEDOR = {
   proveedor: { select: { id: true, nombre: true, porcentajeCumplimiento: true } },
 };
@@ -44,13 +43,6 @@ export async function actualizarProducto(id, datos) {
   });
 }
 
-/**
- * Un producto con movimientos NO se borra: su historial es la evidencia que
- * sostiene el inventario y la confiabilidad del proveedor.
- *
- * La comprobacion y el borrado van en una transaccion para que no se pueda
- * colar un movimiento entre ambas operaciones.
- */
 export async function eliminarProducto(id) {
   return prisma.$transaction(async (tx) => {
     const producto = await tx.producto.findUnique({

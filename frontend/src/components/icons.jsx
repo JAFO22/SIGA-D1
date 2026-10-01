@@ -1,6 +1,3 @@
-// Set mínimo de iconos (trazo, estilo Lucide). Tamaño y color se heredan por
-// `className` (usa `h-*`, `w-*` y `text-*`). Evita dependencias externas.
-
 function Svg({ children, className = 'h-5 w-5' }) {
   return (
     <svg

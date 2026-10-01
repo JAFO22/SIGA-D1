@@ -1,0 +1,65 @@
+databases:
+  - name: siga-d1-db
+    databaseName: siga_d1
+    user: siga
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: siga-d1-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy && npm run seed
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: siga-d1-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: CORS_ORIGIN
+        fromService:
+          name: siga-d1-web
+          type: web
+          property: host
+      - key: SEMAFORO_DIAS_AMARILLO
+        value: 7
+      - key: SEMAFORO_DIAS_ROJO
+        value: 3
+      - key: VENTAS_MUESTRA
+        value: 5
+      - key: SEED_ADMIN_PASSWORD
+        sync: false
+      - key: SEED_EMPLEADO_PASSWORD
+        sync: false
+
+  - type: web
+    name: siga-d1-web
+    runtime: static
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: siga-d1-api
+          type: web
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

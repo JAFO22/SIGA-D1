@@ -1,16 +1,7 @@
-# Dependencias
-**/node_modules/
-
-# Builds
-frontend/dist/
-
-# Entorno (cada quien crea el suyo a partir de .env.example)
-**/.env
-
-# Base de datos SQLite del prototipo
-backend/prisma/*.db
-backend/prisma/*.db-journal
-
-# Logs y varios del sistema
+node_modules/
+dist/
+.env
+.env.local
 *.log
 .DS_Store
+Thumbs.db

@@ -16,12 +16,7 @@ import movimientosRoutes from './routes/movimientos.routes.js';
 import alertasRoutes from './routes/alertas.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
 
-/**
- * Limite general de peticiones por IP. Es holgado (no debe estorbar el uso
- * normal de la tienda) y solo pretende contener bucles o scripts descontrolados.
- * El login tiene ademas su propio limite, mucho mas estricto.
- */
-const limiteGeneral = rateLimit({
+const limitarPeticionesGenerales = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 600,
   standardHeaders: true,
@@ -29,18 +24,34 @@ const limiteGeneral = rateLimit({
   message: { error: 'Demasiadas peticiones. Espere un momento e intente de nuevo.' },
 });
 
-/**
- * Construye la app de Express. Se separa de `server.js` para poder importarla
- * en pruebas sin abrir un puerto.
- */
+const politicaDeCors = {
+  origin(origen, permitir) {
+    const esPeticionSinNavegador = !origen;
+    permitir(null, esPeticionSinNavegador || env.origenesPermitidos.includes(origen));
+  },
+  credentials: false,
+};
+
+async function comprobarEstadoDelServicio(_req, res) {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ estado: 'ok', baseDatos: 'conectada', hora: new Date().toISOString() });
+  } catch (error) {
+    logger.error('El health check no pudo consultar la base de datos', error);
+    res.status(503).json({ estado: 'degradado', baseDatos: 'sin conexion' });
+  }
+}
+
 export function crearApp() {
   const app = express();
 
-  app.use(helmet()); // cabeceras de seguridad por defecto
-  app.use(cors({ origin: env.corsOrigin }));
+  app.set('trust proxy', env.saltosDeProxyConfiables);
+  app.disable('x-powered-by');
+
+  app.use(helmet());
+  app.use(cors(politicaDeCors));
   app.use(express.json({ limit: '100kb' }));
 
-  // Peticiones HTTP en una linea legible: metodo, ruta, estado y duracion.
   if (env.entorno !== 'test') {
     app.use(
       morgan(':method :url :status :response-time[0]ms', {
@@ -49,20 +60,9 @@ export function crearApp() {
     );
   }
 
-  app.use('/api', limiteGeneral);
+  app.get('/api/health', comprobarEstadoDelServicio);
 
-  // Health check real: confirma que la base de datos responde, no solo que el
-  // proceso esta vivo. Devuelve 503 si la BD no contesta.
-  app.get('/api/health', async (_req, res) => {
-    try {
-      await prisma.$queryRaw`SELECT 1`;
-      res.json({ estado: 'ok', baseDatos: 'conectada', hora: new Date().toISOString() });
-    } catch (error) {
-      logger.error('El health check no pudo consultar la base de datos', error);
-      res.status(503).json({ estado: 'degradado', baseDatos: 'sin conexion' });
-    }
-  });
-
+  app.use('/api', limitarPeticionesGenerales);
   app.use('/api/auth', authRoutes);
   app.use('/api/proveedores', proveedoresRoutes);
   app.use('/api/productos', productosRoutes);

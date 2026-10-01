@@ -24,7 +24,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col bg-ink-900 md:flex">
-      {/* Logo */}
+      {}
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-5">
         <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-sm font-bold text-white shadow-glow">
           D1
@@ -35,7 +35,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Navegación */}
+      {}
       <nav className="flex-1 space-y-1 px-3 py-4">
         {items.map((e) => (
           <NavLink
@@ -67,7 +67,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer */}
+      {}
       <div className="border-t border-white/[0.06] px-5 py-4">
         <p className="text-[10px] uppercase tracking-wider text-slate-600">Tienda D1</p>
         <p className="mt-1 text-[11px] text-slate-500">San Mateo · Fusagasugá</p>

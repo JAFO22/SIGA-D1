@@ -1,9 +1,5 @@
 import { cn } from '../../lib/cn.js';
 
-/**
- * Tabla de datos. Columnas:
- *   { clave, titulo, align?: 'right'|'center', render?(fila), className? }
- */
 export default function DataTable({ columnas, filas, obtenerId = (f) => f.id, vacio = 'Sin registros.', onRowClick }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">

@@ -1,6 +1,3 @@
-// Pruebas unitarias del nucleo de reglas de negocio.
-// Se ejecutan con el runner nativo de Node (sin dependencias extra):  npm test
-
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -23,7 +20,7 @@ test('estimarRitmoVentaDiario promedia solo los N movimientos mas recientes', ()
     salida(100, '2026-01-05'),
     salida(100, '2026-01-06'),
   ];
-  // Los 5 mas recientes: 20,30,100,100,100 -> 350/5 = 70
+
   assert.equal(estimarRitmoVentaDiario(movimientos, 5), 70);
 });
 
@@ -47,7 +44,7 @@ test('semaforo AMARILLO cuando quedan pocos dias', () => {
     movimientosSalida: [salida(20, '2026-01-05'), salida(20, '2026-01-06')],
     config: CONFIG,
   });
-  assert.equal(r.estado, ESTADO_SEMAFORO.AMARILLO); // 5 dias -> entre 3 y 7
+  assert.equal(r.estado, ESTADO_SEMAFORO.AMARILLO);
 });
 
 test('semaforo ROJO cuando el quiebre es inminente', () => {
@@ -56,7 +53,7 @@ test('semaforo ROJO cuando el quiebre es inminente', () => {
     movimientosSalida: [salida(20, '2026-01-05'), salida(20, '2026-01-06')],
     config: CONFIG,
   });
-  assert.equal(r.estado, ESTADO_SEMAFORO.ROJO); // 2 dias -> <= 3
+  assert.equal(r.estado, ESTADO_SEMAFORO.ROJO);
 });
 
 test('semaforo ROJO cuando el stock ya esta en cero', () => {

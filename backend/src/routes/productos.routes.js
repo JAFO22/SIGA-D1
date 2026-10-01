@@ -16,7 +16,6 @@ router.use(autenticar);
 router.get('/', productosController.listar);
 router.get('/:id', validate(idParamSchema, 'params'), productosController.obtener);
 
-// El catalogo (crear/editar/borrar productos) es exclusivo del ADMINISTRADOR.
 router.post(
   '/',
   autorizar(ROLES.ADMINISTRADOR),

@@ -1,46 +1,67 @@
 import axios from 'axios';
 
-const TOKEN_KEY = 'siga_token';
-const USUARIO_KEY = 'siga_usuario';
+export const TOKEN_KEY = 'siga_token';
+export const USUARIO_KEY = 'siga_usuario';
+export const EVENTO_SESION_EXPIRADA = 'siga:sesion-expirada';
 
-// baseURL: en dev usa el proxy de Vite (/api); en prod, VITE_API_URL.
+const MENSAJE_POR_FALLO_DE_RED = {
+  ECONNABORTED: 'La solicitud tardo demasiado. Revise su conexion e intente de nuevo.',
+  ERR_NETWORK: 'No se pudo conectar con el servidor.',
+};
+
+function resolverUrlDeLaApi() {
+  const configurada = import.meta.env.VITE_API_URL?.trim();
+  if (!configurada) return '/api';
+
+  const conProtocolo = /^https?:\/\//.test(configurada)
+    ? configurada
+    : `https://${configurada}`;
+  const sinBarraFinal = conProtocolo.replace(/\/+$/, '');
+
+  return sinBarraFinal.endsWith('/api') ? sinBarraFinal : `${sinBarraFinal}/api`;
+}
+
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: resolverUrlDeLaApi(),
   timeout: 15000,
 });
 
-// Adjunta el JWT a cada peticion si hay sesion.
+export function limpiarSesionGuardada() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USUARIO_KEY);
+}
+
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// Normaliza los errores: el resto de la app siempre recibe un Error con un
-// mensaje legible (el que envia el backend en `error`). Ante un 401 fuera del
-// login, limpia la sesion y manda a /login.
+function normalizarError(error) {
+  const mensaje =
+    error.response?.data?.error ||
+    MENSAJE_POR_FALLO_DE_RED[error.code] ||
+    'Ocurrio un error inesperado.';
+
+  const normalizado = new Error(mensaje);
+  normalizado.estado = error.response?.status;
+  if (error.response?.data?.detalles) normalizado.detalles = error.response.data.detalles;
+  return normalizado;
+}
+
 apiClient.interceptors.response.use(
   (respuesta) => respuesta,
   (error) => {
-    const esLogin = error.config?.url?.includes('/auth/login');
-    if (error.response?.status === 401 && !esLogin) {
-      localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(USUARIO_KEY);
-      if (window.location.pathname !== '/login') {
-        window.location.assign('/login');
-      }
+    const esIntentoDeLogin = error.config?.url?.includes('/auth/login');
+    const sesionRechazada = error.response?.status === 401 && !esIntentoDeLogin;
+
+    if (sesionRechazada) {
+      limpiarSesionGuardada();
+      window.dispatchEvent(new Event(EVENTO_SESION_EXPIRADA));
     }
-    const mensaje =
-      error.response?.data?.error ||
-      (error.code === 'ECONNABORTED'
-        ? 'La solicitud tardo demasiado'
-        : 'No se pudo conectar con el servidor');
-    const detalles = error.response?.data?.detalles;
-    const err = new Error(mensaje);
-    if (detalles) err.detalles = detalles;
-    return Promise.reject(err);
+
+    return Promise.reject(normalizarError(error));
   },
 );
 
-export { TOKEN_KEY, USUARIO_KEY };
 export default apiClient;

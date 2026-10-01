@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
 
-/**
- * Anima un número de 0 a `value` con una curva easeOut.
- *
- * Robustez: si `requestAnimationFrame` no corre (pestaña en segundo plano),
- * un `setTimeout` de respaldo fija el valor final para que nunca quede a medias.
- */
 export default function CountUp({ value = 0, duration = 900, decimals = 0, format }) {
   const [display, setDisplay] = useState(value);
 

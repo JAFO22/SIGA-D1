@@ -1,5 +1,3 @@
-// Constantes compartidas por la interfaz (deben coincidir con el backend).
-
 export const ROLES = {
   EMPLEADO: 'EMPLEADO',
   ADMINISTRADOR: 'ADMINISTRADOR',
@@ -10,15 +8,12 @@ export const TIPO_MOVIMIENTO = {
   SALIDA: 'SALIDA',
 };
 
-// El backend expone el estado como VERDE | AMARILLO | ROJO (regla de negocio).
-// En la interfaz se presenta con lenguaje operativo, no como un "semáforo".
 export const ESTADO_RIESGO = {
   ROJO: 'ROJO',
   AMARILLO: 'AMARILLO',
   VERDE: 'VERDE',
 };
 
-// Metadatos de presentación para cada nivel de riesgo de quiebre.
 export const RIESGO_META = {
   ROJO: {
     nivel: 'Crítico',
@@ -55,7 +50,6 @@ export const RIESGO_META = {
   },
 };
 
-// Escala de confiabilidad del proveedor (umbrales de presentación).
 export function nivelConfiabilidad(pct) {
   if (pct >= 95) return { clave: 'VERDE', etiqueta: 'Confiable' };
   if (pct >= 85) return { clave: 'AMARILLO', etiqueta: 'Aceptable' };
