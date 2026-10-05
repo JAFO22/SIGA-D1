@@ -23,11 +23,14 @@ export async function evaluarProductos() {
     },
   });
 
+  const hoy = new Date();
+
   return productos.map((p) => {
     const semaforo = calcularSemaforo({
       stockActual: p.stockActual,
       movimientosSalida: p.movimientos,
       config,
+      hoy,
     });
     return {
       productoId: p.id,

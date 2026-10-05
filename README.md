@@ -18,6 +18,10 @@ I(t+1) = máx(0, I(t) + R(t) − V(t))
 
 donde `I` es el inventario, `R` la reposición y `V` las ventas.
 
+El ritmo de venta son las unidades de las últimas `VENTAS_MUESTRA` salidas divididas entre
+los días calendario transcurridos desde la más antigua de ellas hasta hoy, en la hora de
+Colombia. Un producto que deja de venderse deja de aparecer en riesgo.
+
 En la confiabilidad, lo entregado de más en un pedido no compensa lo que faltó en otro:
 entregar 150 de 100 y luego 50 de 100 es un 75 %, no un 100 %.
 

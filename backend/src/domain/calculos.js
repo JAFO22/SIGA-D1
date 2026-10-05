@@ -12,7 +12,7 @@ function masRecientePrimero(a, b) {
   return new Date(b.fecha) - new Date(a.fecha);
 }
 
-export function estimarRitmoVentaDiario(movimientosSalida, muestra) {
+export function estimarRitmoVentaDiario(movimientosSalida, muestra, hoy) {
   if (!Array.isArray(movimientosSalida) || movimientosSalida.length === 0) {
     return SIN_VENTAS_RECIENTES;
   }
@@ -20,7 +20,7 @@ export function estimarRitmoVentaDiario(movimientosSalida, muestra) {
   const tamanoDeMuestra = Math.max(1, Math.trunc(muestra) || 1);
   const recientes = [...movimientosSalida].sort(masRecientePrimero).slice(0, tamanoDeMuestra);
   const unidadesVendidas = recientes.reduce((suma, m) => suma + m.cantidad, 0);
-  const diasObservados = diasCalendarioAbarcados(recientes.map((m) => m.fecha));
+  const diasObservados = diasCalendarioAbarcados([...recientes.map((m) => m.fecha), hoy]);
 
   return unidadesVendidas / diasObservados;
 }
@@ -31,8 +31,8 @@ function clasificarPorCobertura(diasRestantes, { diasRojo, diasAmarillo }) {
   return ESTADO_SEMAFORO.VERDE;
 }
 
-export function calcularSemaforo({ stockActual, movimientosSalida, config }) {
-  const ritmo = estimarRitmoVentaDiario(movimientosSalida, config.ventasMuestra);
+export function calcularSemaforo({ stockActual, movimientosSalida, config, hoy }) {
+  const ritmo = estimarRitmoVentaDiario(movimientosSalida, config.ventasMuestra, hoy);
   const ritmoVentaDiario = redondearADosDecimales(ritmo);
 
   const sinExistencias = stockActual <= 0;

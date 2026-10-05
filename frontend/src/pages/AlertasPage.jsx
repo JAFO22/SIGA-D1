@@ -82,7 +82,7 @@ export default function AlertasPage() {
     <div>
       <PageHeader
         title="Riesgo de quiebre"
-        description="Proyección de cobertura por producto según el consumo diario estimado (promedio de las últimas salidas registradas)."
+        description="Proyección de cobertura por producto según el consumo diario: unidades vendidas por día en las salidas recientes."
       />
 
       <DataState
@@ -159,8 +159,9 @@ export default function AlertasPage() {
             Umbrales configurables (variables de entorno del backend):{' '}
             <b className="text-slate-500">Crítico</b> si la cobertura es ≤ {config.diasRojo} días o el
             stock es cero; <b className="text-slate-500">Atención</b> hasta {config.diasAmarillo} días;{' '}
-            <b className="text-slate-500">Óptimo</b> por encima. El consumo diario se estima con las
-            últimas {config.ventasMuestra} salidas.
+            <b className="text-slate-500">Óptimo</b> por encima. El consumo diario son las unidades de las
+            últimas {config.ventasMuestra} salidas divididas entre los días transcurridos desde la
+            primera de ellas hasta hoy.
           </p>
         )}
       </DataState>

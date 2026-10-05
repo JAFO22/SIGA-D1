@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ROLES, TIPO_MOVIMIENTO } from '../src/domain/constantes.js';
 import { calcularCumplimiento } from '../src/domain/calculos.js';
+import { diaDe, instanteEnLaTienda } from '../src/domain/fechas.js';
 import { cifrarContrasena } from '../src/lib/contrasenas.js';
 
 const prisma = new PrismaClient();
@@ -38,11 +39,19 @@ const PRODUCTOS = [
   { nombre: 'Mantequilla 250g', categoria: 'Lacteos', proveedor: 'Colanta', ventaBase: 9, stockObjetivo: 18 },
 ];
 
-function fechaDia(offsetDesdeHoy) {
-  const base = new Date();
-  base.setHours(0, 0, 0, 0);
-  base.setDate(base.getDate() - offsetDesdeHoy);
-  return base;
+const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
+
+function diaDeLaTienda(diasAtras) {
+  return diaDe(Date.now() - diasAtras * MILISEGUNDOS_POR_DIA);
+}
+
+function diaDeLaSemana(dia) {
+  return new Date(`${dia}T12:00:00Z`).getUTCDay();
+}
+
+function aLasEnLaTienda(dia, hora) {
+  const instante = instanteEnLaTienda(dia, hora);
+  return new Date(Math.min(instante.getTime(), Date.now()));
 }
 
 const CONTRASENA_DEMO = { admin: 'admin123', empleado: 'empleado123' };
@@ -138,8 +147,8 @@ async function main() {
   }
 
   for (let offset = DIAS_HISTORIAL - 1; offset >= 0; offset -= 1) {
-    const dia = fechaDia(offset);
-    const esDiaCamion = DIAS_CAMION.has(dia.getDay());
+    const dia = diaDeLaTienda(offset);
+    const esDiaCamion = DIAS_CAMION.has(diaDeLaSemana(dia));
     const sinRuido = offset < DIAS_SIN_RUIDO;
 
     for (const def of PRODUCTOS) {
@@ -151,8 +160,7 @@ async function main() {
         const factor = proveedor.factorEntrega + (rng() - 0.5) * 0.06;
         const entregada = Math.max(1, Math.round(solicitada * factor));
 
-        const fechaEntrada = new Date(dia);
-        fechaEntrada.setHours(8, 0, 0, 0);
+        const fechaEntrada = aLasEnLaTienda(dia, '08:00');
         movimientos.push({
           productoId: producto.id,
           usuarioId: rng() < 0.5 ? idEmpleado : idAdmin,
@@ -177,8 +185,7 @@ async function main() {
       const ruido = sinRuido ? 0 : enteroEntre(-Math.ceil(def.ventaBase * 0.25), Math.ceil(def.ventaBase * 0.25));
       const cantidadVenta = Math.max(1, def.ventaBase + ruido);
 
-      const fechaSalida = new Date(dia);
-      fechaSalida.setHours(9, 0, 0, 0);
+      const fechaSalida = aLasEnLaTienda(dia, '09:00');
       movimientos.push({
         productoId: producto.id,
         usuarioId: rng() < 0.7 ? idEmpleado : idAdmin,

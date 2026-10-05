@@ -76,20 +76,26 @@ La contraseña de la base de datos nunca aparece en los logs.
 
 ---
 
-## Paso 4 — Cambiar las contraseñas de ejemplo
+## Paso 4 — Regenerar los datos de ejemplo
 
-El seed crea las cuentas con contraseñas de demostración. Para producción:
+Sirve para dos cosas: cambiar las contraseñas de demostración y refrescar los datos antes
+de una presentación.
+
+**Por qué refrescarlos:** el ritmo de venta cuenta los días transcurridos hasta hoy. Si
+nadie registra ventas, con el paso de los días los productos dejan de estar en riesgo y
+todos pasan a verde. Es el comportamiento correcto, pero en una demostración conviene
+partir de datos recientes.
+
+El plan gratuito no incluye la consola (**Shell**) de Render, así que se hace con una
+variable de entorno:
 
 1. Ve a **siga-d1-api** → **Environment**.
-2. Añade `SEED_ADMIN_PASSWORD` y `SEED_EMPLEADO_PASSWORD` con los valores que quieras.
-3. Ve a **Shell** (o fuerza un redeploy) y ejecuta:
+2. Si quieres otras contraseñas, define `SEED_ADMIN_PASSWORD` y `SEED_EMPLEADO_PASSWORD`.
+3. Añade `SEED_FORZAR` con el valor `true` y pulsa **Save, rebuild, and deploy**.
+4. Cuando el despliegue termine, **elimina `SEED_FORZAR`** y guarda de nuevo.
 
-   ```bash
-   SEED_FORZAR=true npm run seed
-   ```
-
-   Ojo: `SEED_FORZAR` **borra y regenera** los datos de ejemplo. Hazlo antes de empezar a
-   cargar información real.
+Ojo: mientras `SEED_FORZAR` exista, **cada despliegue borra todos los datos** y los
+regenera. No la dejes puesta si ya cargaste información real.
 
 ---
 

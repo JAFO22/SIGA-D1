@@ -1,4 +1,5 @@
 const ZONA_HORARIA_DE_LA_TIENDA = 'America/Bogota';
+const DESFASE_UTC_DE_LA_TIENDA = '-05:00';
 const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
 
 const calendarioDeLaTienda = new Intl.DateTimeFormat('en-US', {
@@ -13,6 +14,10 @@ export function diaDe(fecha) {
     calendarioDeLaTienda.formatToParts(new Date(fecha)).map(({ type, value }) => [type, value]),
   );
   return `${partes.year}-${partes.month}-${partes.day}`;
+}
+
+export function instanteEnLaTienda(dia, hora) {
+  return new Date(`${dia}T${hora}:00${DESFASE_UTC_DE_LA_TIENDA}`);
 }
 
 function numeroDeDia(fecha) {
