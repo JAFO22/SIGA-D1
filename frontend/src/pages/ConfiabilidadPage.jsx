@@ -21,7 +21,7 @@ import { useFetch } from '../hooks/useFetch.js';
 import { useResizeNudge } from '../hooks/useResizeNudge.js';
 import { obtenerConfiabilidad } from '../services/proveedores.service.js';
 import { RIESGO_META, nivelConfiabilidad } from '../lib/constantes.js';
-import { numero, porcentaje, fechaCorta } from '../lib/format.js';
+import { numero, porcentaje, diaCorto, diaLocal } from '../lib/format.js';
 import { IconTruck, IconArrowUp, IconArrowDown } from '../components/icons.jsx';
 
 const COLORES = ['#e2231a', '#2563eb', '#059669', '#9333ea', '#0891b2', '#d97706'];
@@ -30,7 +30,7 @@ function combinarTendencias(proveedores) {
   const porFecha = new Map();
   for (const p of proveedores) {
     for (const punto of p.tendencia) {
-      const clave = new Date(punto.fecha).toISOString().slice(0, 10);
+      const clave = diaLocal(punto.fecha);
       if (!porFecha.has(clave)) porFecha.set(clave, { fecha: clave });
       porFecha.get(clave)[p.nombre] = punto.porcentaje;
     }
@@ -105,7 +105,7 @@ export default function ConfiabilidadPage() {
                       <CartesianGrid strokeDasharray="4 4" stroke="#eef2f7" vertical={false} />
                       <XAxis
                         dataKey="fecha"
-                        tickFormatter={fechaCorta}
+                        tickFormatter={diaCorto}
                         tick={{ fontSize: 11, fill: '#94a3b8' }}
                         axisLine={{ stroke: '#e2e8f0' }}
                         tickLine={false}
@@ -119,7 +119,7 @@ export default function ConfiabilidadPage() {
                         width={44}
                       />
                       <Tooltip
-                        content={<ChartTooltip unidad="%" labelFormatter={fechaCorta} />}
+                        content={<ChartTooltip unidad="%" labelFormatter={diaCorto} />}
                         cursor={{ stroke: '#cbd5e1', strokeDasharray: 4 }}
                       />
                       <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />

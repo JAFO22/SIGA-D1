@@ -58,19 +58,25 @@ export async function eliminarProveedor(id) {
   });
 }
 
-export async function recalcularCumplimiento(proveedorId, cliente = prisma) {
-  const entradas = await cliente.movimiento.findMany({
+function bloquearProveedorHastaTerminar(tx, proveedorId) {
+  return tx.$queryRaw`SELECT id FROM "Proveedor" WHERE id = ${proveedorId} FOR UPDATE`;
+}
+
+export async function recalcularCumplimiento(proveedorId, tx) {
+  await bloquearProveedorHastaTerminar(tx, proveedorId);
+
+  const entradas = await tx.movimiento.findMany({
     where: { tipo: TIPO_MOVIMIENTO.ENTRADA, producto: { proveedorId } },
     select: { cantidad: true, cantidadSolicitada: true },
   });
 
   const resultado = calcularCumplimiento(entradas);
 
-  await cliente.proveedor.update({
+  await tx.proveedor.update({
     where: { id: proveedorId },
     data: { porcentajeCumplimiento: resultado.porcentaje },
   });
-  await cliente.cumplimientoHistorial.create({
+  await tx.cumplimientoHistorial.create({
     data: {
       proveedorId,
       porcentaje: resultado.porcentaje,

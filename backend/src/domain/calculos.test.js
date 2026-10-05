@@ -55,6 +55,24 @@ test('estimarRitmoVentaDiario toma una unica salida como un dia de consumo', () 
   assert.equal(estimarRitmoVentaDiario([salida(30, '2026-01-05')], 5), 30);
 });
 
+test('calcularSemaforo clasifica con el ritmo exacto y no con el redondeado', () => {
+  const sieteUnidadesEnTresDias = [
+    salida(3, '2026-01-01T15:00:00Z'),
+    salida(2, '2026-01-02T15:00:00Z'),
+    salida(2, '2026-01-03T15:00:00Z'),
+  ];
+
+  const r = calcularSemaforo({
+    stockActual: 7,
+    movimientosSalida: sieteUnidadesEnTresDias,
+    config: CONFIG,
+  });
+
+  assert.equal(r.ritmoVentaDiario, 2.33);
+  assert.equal(r.diasRestantes, 3);
+  assert.equal(r.estado, ESTADO_SEMAFORO.ROJO);
+});
+
 test('calcularSemaforo usa el ritmo diario cuando hay varias ventas el mismo dia', () => {
   const r = calcularSemaforo({
     stockActual: 100,

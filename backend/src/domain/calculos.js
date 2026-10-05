@@ -32,16 +32,15 @@ function clasificarPorCobertura(diasRestantes, { diasRojo, diasAmarillo }) {
 }
 
 export function calcularSemaforo({ stockActual, movimientosSalida, config }) {
-  const ritmoVentaDiario = redondearADosDecimales(
-    estimarRitmoVentaDiario(movimientosSalida, config.ventasMuestra),
-  );
+  const ritmo = estimarRitmoVentaDiario(movimientosSalida, config.ventasMuestra);
+  const ritmoVentaDiario = redondearADosDecimales(ritmo);
 
   const sinExistencias = stockActual <= 0;
   if (sinExistencias) {
     return { estado: ESTADO_SEMAFORO.ROJO, diasRestantes: 0, ritmoVentaDiario };
   }
 
-  if (ritmoVentaDiario === SIN_VENTAS_RECIENTES) {
+  if (ritmo === SIN_VENTAS_RECIENTES) {
     return {
       estado: ESTADO_SEMAFORO.VERDE,
       diasRestantes: COBERTURA_INDETERMINADA,
@@ -49,7 +48,7 @@ export function calcularSemaforo({ stockActual, movimientosSalida, config }) {
     };
   }
 
-  const diasRestantes = stockActual / ritmoVentaDiario;
+  const diasRestantes = stockActual / ritmo;
 
   return {
     estado: clasificarPorCobertura(diasRestantes, config),

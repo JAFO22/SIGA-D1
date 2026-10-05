@@ -31,8 +31,19 @@ export function fechaHora(valor) {
   });
 }
 
-export function fechaCorta(valor) {
-  return new Date(valor).toLocaleDateString('es-CO', { day: '2-digit', month: 'short' });
+const dosDigitos = (n) => String(n).padStart(2, '0');
+
+export function diaLocal(valor) {
+  const fecha = new Date(valor);
+  return `${fecha.getFullYear()}-${dosDigitos(fecha.getMonth() + 1)}-${dosDigitos(fecha.getDate())}`;
+}
+
+export function diaCorto(dia) {
+  return new Date(`${dia}T00:00:00Z`).toLocaleDateString('es-CO', {
+    day: '2-digit',
+    month: 'short',
+    timeZone: 'UTC',
+  });
 }
 
 export function tiempoRelativo(valor) {

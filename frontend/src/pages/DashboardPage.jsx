@@ -19,7 +19,7 @@ import { CardsSkeleton } from '../components/ui/Skeleton.jsx';
 import { useFetch } from '../hooks/useFetch.js';
 import { useResizeNudge } from '../hooks/useResizeNudge.js';
 import { obtenerResumenDashboard } from '../services/dashboard.service.js';
-import { numero, dias, fechaCorta, fechaHora } from '../lib/format.js';
+import { numero, dias, diaCorto, fechaHora } from '../lib/format.js';
 import { RIESGO_META } from '../lib/constantes.js';
 import { IconBox, IconAlert, IconClock, IconChart, IconArrowUp, IconArrowDown } from '../components/icons.jsx';
 import { cn } from '../lib/cn.js';
@@ -92,7 +92,7 @@ export default function DashboardPage() {
                       <CartesianGrid strokeDasharray="4 4" stroke="#eef2f7" vertical={false} />
                       <XAxis
                         dataKey="fecha"
-                        tickFormatter={fechaCorta}
+                        tickFormatter={diaCorto}
                         tick={{ fontSize: 11, fill: '#94a3b8' }}
                         axisLine={{ stroke: '#e2e8f0' }}
                         tickLine={false}
@@ -105,7 +105,7 @@ export default function DashboardPage() {
                         allowDecimals={false}
                       />
                       <Tooltip
-                        content={<ChartTooltip unidad=" u" labelFormatter={fechaCorta} valueFormatter={numero} />}
+                        content={<ChartTooltip unidad=" u" labelFormatter={diaCorto} valueFormatter={numero} />}
                         cursor={{ stroke: '#cbd5e1', strokeDasharray: 4 }}
                       />
                       <Area

@@ -16,10 +16,10 @@ test('sin movimientos devuelve un unico punto con el stock actual', () => {
 
 test('la serie termina en el stock actual: I(0) + R - V = I(final)', () => {
   const movimientos = [
-    entrada(100, '2026-01-01'),
-    salida(30, '2026-01-02'),
-    entrada(50, '2026-01-03'),
-    salida(20, '2026-01-04'),
+    entrada(100, '2026-01-01T12:00:00-05:00'),
+    salida(30, '2026-01-02T12:00:00-05:00'),
+    entrada(50, '2026-01-03T12:00:00-05:00'),
+    salida(20, '2026-01-04T12:00:00-05:00'),
   ];
 
   const serie = reconstruirSerieInventario({ stockActual: 200, movimientos });
@@ -29,9 +29,9 @@ test('la serie termina en el stock actual: I(0) + R - V = I(final)', () => {
 
 test('ordena cronologicamente aunque lleguen desordenados', () => {
   const movimientos = [
-    salida(10, '2026-01-03'),
-    entrada(40, '2026-01-01'),
-    salida(5, '2026-01-02'),
+    salida(10, '2026-01-03T12:00:00-05:00'),
+    entrada(40, '2026-01-01T12:00:00-05:00'),
+    salida(5, '2026-01-02T12:00:00-05:00'),
   ];
 
   const serie = reconstruirSerieInventario({ stockActual: 25, movimientos });
@@ -58,7 +58,7 @@ test('agrupa varios movimientos del mismo dia en el valor de cierre', () => {
 });
 
 test('el inventario reconstruido nunca es negativo', () => {
-  const movimientos = [salida(500, '2026-03-01'), entrada(10, '2026-03-02')];
+  const movimientos = [salida(500, '2026-03-01T12:00:00-05:00'), entrada(10, '2026-03-02T12:00:00-05:00')];
 
   const serie = reconstruirSerieInventario({ stockActual: 10, movimientos });
 
