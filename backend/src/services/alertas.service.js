@@ -14,7 +14,6 @@ export async function evaluarProductos() {
     orderBy: { nombre: 'asc' },
     include: {
       proveedor: { select: { id: true, nombre: true } },
-
       movimientos: {
         where: { tipo: TIPO_MOVIMIENTO.SALIDA },
         orderBy: { fecha: 'desc' },

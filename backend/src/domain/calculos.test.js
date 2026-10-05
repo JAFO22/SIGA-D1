@@ -140,6 +140,21 @@ test('cumplimiento = entregado / pedido * 100', () => {
   assert.equal(r.porcentaje, 85);
 });
 
+test('cumplimiento: lo entregado de mas no compensa lo que falto en otro pedido', () => {
+  const entradas = [
+    { cantidad: 150, cantidadSolicitada: 100 },
+    { cantidad: 50, cantidadSolicitada: 100 },
+  ];
+  const r = calcularCumplimiento(entradas);
+  assert.equal(r.totalPedido, 200);
+  assert.equal(r.totalEntregado, 150);
+  assert.equal(r.porcentaje, 75);
+});
+
+test('cumplimiento nunca supera el 100 %', () => {
+  assert.equal(calcularCumplimiento([{ cantidad: 130, cantidadSolicitada: 100 }]).porcentaje, 100);
+});
+
 test('cumplimiento ignora entradas sin cantidad solicitada y asume 100 si no hay datos', () => {
   assert.equal(calcularCumplimiento([{ cantidad: 50, cantidadSolicitada: null }]).porcentaje, 100);
   assert.equal(calcularCumplimiento([]).porcentaje, 100);

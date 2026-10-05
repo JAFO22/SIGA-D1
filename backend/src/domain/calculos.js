@@ -57,6 +57,10 @@ export function calcularSemaforo({ stockActual, movimientosSalida, config }) {
   };
 }
 
+function entregadoSinExcedente(entrada) {
+  return Math.min(entrada.cantidad, entrada.cantidadSolicitada);
+}
+
 export function calcularCumplimiento(movimientosEntrada) {
   const conPedidoDeclarado = (movimientosEntrada || []).filter(
     (m) => m.cantidadSolicitada != null && m.cantidadSolicitada > 0,
@@ -67,7 +71,7 @@ export function calcularCumplimiento(movimientosEntrada) {
   }
 
   const totalPedido = conPedidoDeclarado.reduce((s, m) => s + m.cantidadSolicitada, 0);
-  const totalEntregado = conPedidoDeclarado.reduce((s, m) => s + m.cantidad, 0);
+  const totalEntregado = conPedidoDeclarado.reduce((s, m) => s + entregadoSinExcedente(m), 0);
 
   return {
     porcentaje: redondearADosDecimales((totalEntregado / totalPedido) * 100),

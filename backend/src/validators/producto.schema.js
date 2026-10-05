@@ -11,7 +11,6 @@ export const crearProductoSchema = z.object({
   nombre,
   categoria,
   proveedorId,
-
   stockActual: z.coerce
     .number()
     .int('El stock inicial debe ser un numero entero')
@@ -59,7 +58,6 @@ export const actualizarProductoSchema = z
       });
     }
   })
-
   .transform((datos) =>
     Object.fromEntries(
       Object.entries(datos).filter(([clave]) => CAMPOS_EDITABLES.includes(clave)),

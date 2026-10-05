@@ -8,7 +8,7 @@ personal— el sistema deriva dos análisis en paralelo:
 | Análisis | Pregunta que responde | Fórmula |
 |---|---|---|
 | Riesgo de quiebre | ¿Cuántos días de inventario quedan? | `cobertura = stock ÷ ritmo de venta` |
-| Confiabilidad del proveedor | ¿Entrega lo que se le pide? | `% = (Σ entregado ÷ Σ pedido) × 100` |
+| Confiabilidad del proveedor | ¿Entrega lo que se le pide? | `% = (Σ mín(entregado, pedido) ÷ Σ pedido) × 100` |
 
 El inventario evoluciona según el modelo de acumulación y flujos:
 
@@ -17,6 +17,9 @@ I(t+1) = máx(0, I(t) + R(t) − V(t))
 ```
 
 donde `I` es el inventario, `R` la reposición y `V` las ventas.
+
+En la confiabilidad, lo entregado de más en un pedido no compensa lo que faltó en otro:
+entregar 150 de 100 y luego 50 de 100 es un 75 %, no un 100 %.
 
 ---
 

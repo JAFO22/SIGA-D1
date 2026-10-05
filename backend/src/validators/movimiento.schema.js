@@ -16,9 +16,7 @@ export const crearMovimientoSchema = z
       errorMap: () => ({ message: 'El tipo debe ser ENTRADA o SALIDA' }),
     }),
     cantidad,
-
     cantidadSolicitada: cantidad.optional(),
-
     fecha: z.coerce
       .date()
       .refine((f) => f.getTime() <= Date.now(), {
