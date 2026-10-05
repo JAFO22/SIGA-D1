@@ -10,7 +10,12 @@ import { ESTADO_SEMAFORO } from './constantes.js';
 
 const CONFIG = { diasAmarillo: 7, diasRojo: 3, ventasMuestra: 5 };
 const salida = (cantidad, fecha) => ({ cantidad, fecha });
-test('estimarRitmoVentaDiario calcula unidades por día sobre las salidas recientes', () => {
+
+const cincoVentasDeVeinteElMismoDia = [9, 10, 11, 12, 13].map((hora) =>
+  salida(20, `2026-01-05T${String(hora).padStart(2, '0')}:00:00Z`),
+);
+
+test('estimarRitmoVentaDiario divide las unidades de las N salidas recientes entre los dias que abarcan', () => {
   const movimientos = [
     salida(10, '2026-01-01'),
     salida(20, '2026-01-02'),
@@ -20,60 +25,46 @@ test('estimarRitmoVentaDiario calcula unidades por día sobre las salidas recien
     salida(100, '2026-01-06'),
   ];
 
-  // Las 5 salidas más recientes suman 350 unidades
-  // y cubren 5 días calendario (02/01 al 06/01).
-  assert.equal(estimarRitmoVentaDiario(movimientos, 5), 70);
+  assert.equal(estimarRitmoVentaDiario(movimientos, 5), 350 / 5);
 });
 
-test('agrupa correctamente varias ventas realizadas el mismo día', () => {
-  const movimientos = [
-    salida(20, '2026-01-05T09:00:00'),
-    salida(20, '2026-01-05T10:00:00'),
-    salida(20, '2026-01-05T11:00:00'),
-    salida(20, '2026-01-05T12:00:00'),
-    salida(20, '2026-01-05T13:00:00'),
-  ];
-
-  assert.equal(estimarRitmoVentaDiario(movimientos, 5), 100);
+test('estimarRitmoVentaDiario agrupa en un solo dia las ventas de la misma fecha', () => {
+  assert.equal(estimarRitmoVentaDiario(cincoVentasDeVeinteElMismoDia, 5), 100);
 });
 
-test('calcula correctamente cuando las ventas ocurren en días irregulares', () => {
+test('estimarRitmoVentaDiario cuenta los dias sin ventas que hay entre salidas', () => {
   const movimientos = [
     salida(50, '2026-01-01'),
     salida(30, '2026-01-03'),
     salida(20, '2026-01-06'),
   ];
 
-  // 100 unidades entre el 01/01 y el 06/01, inclusive = 6 días.
   assert.equal(estimarRitmoVentaDiario(movimientos, 5), 100 / 6);
 });
 
-test('varias ventas el mismo día producen una cobertura correcta', () => {
+test('estimarRitmoVentaDiario cuenta dias calendario aunque no se completen 24 horas', () => {
   const movimientos = [
-    salida(20, '2026-01-05T09:00:00'),
-    salida(20, '2026-01-05T10:00:00'),
-    salida(20, '2026-01-05T11:00:00'),
-    salida(20, '2026-01-05T12:00:00'),
-    salida(20, '2026-01-05T13:00:00'),
+    salida(40, '2026-01-02T09:00:00Z'),
+    salida(60, '2026-01-06T08:00:00Z'),
   ];
 
+  assert.equal(estimarRitmoVentaDiario(movimientos, 5), 100 / 5);
+});
+
+test('estimarRitmoVentaDiario toma una unica salida como un dia de consumo', () => {
+  assert.equal(estimarRitmoVentaDiario([salida(30, '2026-01-05')], 5), 30);
+});
+
+test('calcularSemaforo usa el ritmo diario cuando hay varias ventas el mismo dia', () => {
   const r = calcularSemaforo({
     stockActual: 100,
-    movimientosSalida: movimientos,
+    movimientosSalida: cincoVentasDeVeinteElMismoDia,
     config: CONFIG,
   });
 
   assert.equal(r.ritmoVentaDiario, 100);
   assert.equal(r.diasRestantes, 1);
   assert.equal(r.estado, ESTADO_SEMAFORO.ROJO);
-});
-
-test('una sola salida se considera un día de consumo', () => {
-  const movimientos = [
-    salida(30, '2026-01-05'),
-  ];
-
-  assert.equal(estimarRitmoVentaDiario(movimientos, 5), 30);
 });
 
 test('estimarRitmoVentaDiario devuelve 0 si no hay ventas', () => {

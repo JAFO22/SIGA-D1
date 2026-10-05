@@ -1,4 +1,5 @@
 import { ESTADO_SEMAFORO } from './constantes.js';
+import { diasCalendarioAbarcados } from './fechas.js';
 
 const SIN_VENTAS_RECIENTES = 0;
 const COBERTURA_INDETERMINADA = null;
@@ -17,31 +18,11 @@ export function estimarRitmoVentaDiario(movimientosSalida, muestra) {
   }
 
   const tamanoDeMuestra = Math.max(1, Math.trunc(muestra) || 1);
+  const recientes = [...movimientosSalida].sort(masRecientePrimero).slice(0, tamanoDeMuestra);
+  const unidadesVendidas = recientes.reduce((suma, m) => suma + m.cantidad, 0);
+  const diasObservados = diasCalendarioAbarcados(recientes.map((m) => m.fecha));
 
-  const recientes = [...movimientosSalida]
-    .sort(masRecientePrimero)
-    .slice(0, tamanoDeMuestra);
-
-  const unidadesVendidas = recientes.reduce(
-    (suma, m) => suma + m.cantidad,
-    0,
-  );
-
-  const fechas = recientes.map((m) => new Date(m.fecha).getTime());
-
-  const fechaMasReciente = Math.max(...fechas);
-  const fechaMasAntigua = Math.min(...fechas);
-
-  const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
-
-  const diasTranscurridos =
-    Math.floor(
-      (fechaMasReciente - fechaMasAntigua) / MILISEGUNDOS_POR_DIA,
-    ) + 1;
-
-  const diasMuestra = Math.max(1, diasTranscurridos);
-
-  return unidadesVendidas / diasMuestra;
+  return unidadesVendidas / diasObservados;
 }
 
 function clasificarPorCobertura(diasRestantes, { diasRojo, diasAmarillo }) {

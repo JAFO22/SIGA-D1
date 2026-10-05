@@ -1,7 +1,7 @@
-import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { ROLES, TIPO_MOVIMIENTO } from '../src/domain/constantes.js';
 import { calcularCumplimiento } from '../src/domain/calculos.js';
+import { cifrarContrasena } from '../src/lib/contrasenas.js';
 
 const prisma = new PrismaClient();
 
@@ -98,12 +98,12 @@ async function main() {
       {
         nombre: 'admin',
         rol: ROLES.ADMINISTRADOR,
-        passwordHash: bcrypt.hashSync(contrasenas.admin, 10),
+        passwordHash: await cifrarContrasena(contrasenas.admin),
       },
       {
         nombre: 'empleado',
         rol: ROLES.EMPLEADO,
-        passwordHash: bcrypt.hashSync(contrasenas.empleado, 10),
+        passwordHash: await cifrarContrasena(contrasenas.empleado),
       },
     ],
   });

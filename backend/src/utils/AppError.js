@@ -1,5 +1,4 @@
 export class AppError extends Error {
-
   constructor(mensaje, statusCode = 400, detalles = undefined) {
     super(mensaje);
     this.name = 'AppError';

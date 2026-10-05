@@ -15,6 +15,7 @@ import productosRoutes from './routes/productos.routes.js';
 import movimientosRoutes from './routes/movimientos.routes.js';
 import alertasRoutes from './routes/alertas.routes.js';
 import dashboardRoutes from './routes/dashboard.routes.js';
+import usuariosRoutes from './routes/usuarios.routes.js';
 
 const limitarPeticionesGenerales = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -69,6 +70,7 @@ export function crearApp() {
   app.use('/api/movimientos', movimientosRoutes);
   app.use('/api/alertas', alertasRoutes);
   app.use('/api/dashboard', dashboardRoutes);
+  app.use('/api/usuarios', usuariosRoutes);
 
   app.use(notFound);
   app.use(errorHandler);

@@ -1,10 +1,8 @@
-/** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   theme: {
     extend: {
       colors: {
-        // Rojo institucional D1 — se usa con moderación (logo y acciones primarias).
         brand: {
           50: '#fef2f2',
           100: '#fee2e2',
@@ -12,14 +10,12 @@ export default {
           600: '#c81e16',
           700: '#a51913',
         },
-        // Chrome de la interfaz (barra lateral, superficies).
         ink: {
           950: '#0b1120',
           900: '#0f172a',
           800: '#1e293b',
           700: '#334155',
         },
-        // Colores semánticos de estado (nivel de riesgo de quiebre).
         risk: {
           critico: '#e11d48',
           atencion: '#d97706',

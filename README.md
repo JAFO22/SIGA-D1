@@ -103,6 +103,9 @@ El seed crea dos cuentas: `admin` y `empleado`. Las contraseñas por defecto son
 demostración y se pueden cambiar con `SEED_ADMIN_PASSWORD` y `SEED_EMPLEADO_PASSWORD`
 antes de ejecutar el seed.
 
+Un administrador puede registrar más cuentas desde la pantalla **Usuarios**
+(`GET` y `POST /api/usuarios`, reservados al rol administrador).
+
 ---
 
 ## Comandos

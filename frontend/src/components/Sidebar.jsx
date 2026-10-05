@@ -25,8 +25,7 @@ export default function Sidebar() {
   const items = NAV.filter((e) => e.roles.includes(usuario.rol));
 
   return (
-    <aside className="hidden h-screen w-64 shrink-0 flex-col sticky top-0 bg-ink-900 md:flex">
-      {}
+    <aside className="hidden w-64 shrink-0 flex-col bg-ink-900 md:flex">
       <div className="flex items-center gap-3 border-b border-white/[0.06] px-5 py-5">
         <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-sm font-bold text-white shadow-glow">
           D1
@@ -37,7 +36,6 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {}
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         {items.map((e) => (
           <NavLink
@@ -69,7 +67,6 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {}
       <div className="border-t border-white/[0.06] px-5 py-4">
         <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">Tienda D1</p>
       </div>

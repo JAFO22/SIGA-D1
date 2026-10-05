@@ -7,7 +7,6 @@ export const listar = asyncHandler(async (req, res) => {
 });
 
 export const registrar = asyncHandler(async (req, res) => {
-
   const movimiento = await movimientosService.registrarMovimiento({
     ...req.body,
     usuarioId: req.usuario.id,

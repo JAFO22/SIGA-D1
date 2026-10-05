@@ -8,12 +8,6 @@ export const TIPO_MOVIMIENTO = {
   SALIDA: 'SALIDA',
 };
 
-export const ESTADO_RIESGO = {
-  ROJO: 'ROJO',
-  AMARILLO: 'AMARILLO',
-  VERDE: 'VERDE',
-};
-
 export const RIESGO_META = {
   ROJO: {
     nivel: 'Crítico',

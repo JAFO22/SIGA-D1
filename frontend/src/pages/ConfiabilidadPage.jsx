@@ -45,7 +45,7 @@ export default function ConfiabilidadPage() {
   useResizeNudge(serie.length);
 
   return (
-    <div className="space-y-8">
+    <div>
       <PageHeader
         title="Confiabilidad de proveedor"
         description="Cumplimiento histórico de cada proveedor: unidades entregadas frente a unidades solicitadas, y su evolución en el tiempo."
@@ -69,7 +69,6 @@ export default function ConfiabilidadPage() {
         }
       >
         <div className="space-y-8">
-          {/* Sección 1: Cumplimiento individual por proveedor */}
           <div className="space-y-4">
             <div>
               <h3 className="text-base font-semibold text-slate-900">Cumplimiento por proveedor</h3>
@@ -84,7 +83,6 @@ export default function ConfiabilidadPage() {
             </div>
           </div>
 
-          {/* Sección 2: Evolución histórica separada */}
           <div className="space-y-4 pt-4 border-t border-slate-200/70">
             <div>
               <h3 className="text-base font-semibold text-slate-900">Evolución en el tiempo</h3>

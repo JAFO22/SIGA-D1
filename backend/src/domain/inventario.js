@@ -1,4 +1,5 @@
 import { TIPO_MOVIMIENTO } from './constantes.js';
+import { diaDe } from './fechas.js';
 
 const INVENTARIO_MINIMO = 0;
 
@@ -8,10 +9,6 @@ function signoDelFlujo(movimiento) {
 
 function efectoSobreElStock(movimiento) {
   return signoDelFlujo(movimiento) * movimiento.cantidad;
-}
-
-function diaDe(fecha) {
-  return new Date(fecha).toISOString().slice(0, 10);
 }
 
 export function reconstruirSerieInventario({ stockActual, movimientos }) {

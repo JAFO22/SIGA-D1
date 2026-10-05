@@ -135,7 +135,6 @@ export default function CatalogoPage() {
         </Card>
       </div>
 
-      {}
       {(dlgProducto?.modo === 'crear' || dlgProducto?.modo === 'editar') && (
         <ProductoFormModal
           open
@@ -162,7 +161,6 @@ export default function CatalogoPage() {
         }}
       />
 
-      {}
       {(dlgProveedor?.modo === 'crear' || dlgProveedor?.modo === 'editar') && (
         <ProveedorFormModal
           open
