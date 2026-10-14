@@ -28,3 +28,13 @@ export function diasCalendarioAbarcados(fechas) {
   const dias = fechas.map(numeroDeDia);
   return Math.max(...dias) - Math.min(...dias) + 1;
 }
+
+export function diasCalendarioEntre(desde, hasta) {
+  return numeroDeDia(hasta) - numeroDeDia(desde);
+}
+
+export function sumarDias(dia, cuantos) {
+  const instante = new Date(`${dia}T12:00:00Z`);
+  instante.setUTCDate(instante.getUTCDate() + cuantos);
+  return instante.toISOString().slice(0, 10);
+}

@@ -9,6 +9,8 @@ personal— el sistema deriva dos análisis en paralelo:
 |---|---|---|
 | Riesgo de quiebre | ¿Cuántos días de inventario quedan? | `cobertura = stock ÷ ritmo de venta` |
 | Confiabilidad del proveedor | ¿Entrega lo que se le pide? | `% = (Σ mín(entregado, pedido) ÷ Σ pedido) × 100` |
+| Tiempo de entrega | ¿Cuántos días tarda el proveedor? | `L = días(entrega − pedido)`, con promedio y desviación |
+| Stock de seguridad | ¿Qué colchón cubre la incertidumbre? | `SS = z · √(L · σ_d² + d² · σ_L²)` |
 
 El inventario evoluciona según el modelo de acumulación y flujos:
 
@@ -21,6 +23,16 @@ donde `I` es el inventario, `R` la reposición y `V` las ventas.
 El ritmo de venta son las unidades de las últimas `VENTAS_MUESTRA` salidas divididas entre
 los días calendario transcurridos desde la más antigua de ellas hasta hoy, en la hora de
 Colombia. Un producto que deja de venderse deja de aparecer en riesgo.
+
+El tiempo de entrega `L` se mide en días calendario de la tienda entre la fecha del pedido y
+la fecha en que llega la entrada, sobre las últimas `TIEMPO_ENTREGA_MUESTRA` entregas de cada
+proveedor que registraron fecha de pedido.
+
+El stock de seguridad usa la media `d` y la desviación estándar muestral `σ_d` de las ventas
+diarias de los últimos `DEMANDA_DIAS_VENTANA` días (contando los días sin ventas desde la
+primera venta de la ventana hasta hoy), el promedio `L` y la desviación `σ_L` del tiempo de
+entrega del proveedor, y el valor `z` de la normal estándar para `NIVEL_SERVICIO`. Si el
+proveedor no tiene entregas con fecha de pedido, no se calcula.
 
 En la confiabilidad, lo entregado de más en un pedido no compensa lo que faltó en otro:
 entregar 150 de 100 y luego 50 de 100 es un 75 %, no un 100 %.
@@ -154,6 +166,9 @@ silencio.
 | `SEMAFORO_DIAS_ROJO` | `3` | Cobertura por debajo de la cual el nivel es crítico |
 | `SEMAFORO_DIAS_AMARILLO` | `7` | Cobertura por debajo de la cual el nivel es de atención |
 | `VENTAS_MUESTRA` | `5` | Salidas recientes usadas para estimar el ritmo de venta |
+| `NIVEL_SERVICIO` | `0.95` | Probabilidad de no quedarse sin stock durante la entrega (entre 0 y 1) |
+| `DEMANDA_DIAS_VENTANA` | `28` | Días de ventas usados para la media y la desviación de la demanda |
+| `TIEMPO_ENTREGA_MUESTRA` | `10` | Entregas recientes por proveedor usadas para medir el tiempo de entrega |
 | `DASHBOARD_DIAS_HISTORICO` | `90` | Ventana de la gráfica de inventario |
 | `CONFIABILIDAD_PUNTOS_TENDENCIA` | `60` | Puntos de la tendencia por proveedor |
 

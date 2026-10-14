@@ -21,7 +21,7 @@ import { useFetch } from '../hooks/useFetch.js';
 import { useResizeNudge } from '../hooks/useResizeNudge.js';
 import { obtenerConfiabilidad } from '../services/proveedores.service.js';
 import { RIESGO_META, nivelConfiabilidad } from '../lib/constantes.js';
-import { numero, porcentaje, diaCorto, diaLocal } from '../lib/format.js';
+import { numero, decimal, porcentaje, diaCorto, diaLocal } from '../lib/format.js';
 import { IconTruck, IconArrowUp, IconArrowDown } from '../components/icons.jsx';
 
 const COLORES = ['#e2231a', '#2563eb', '#059669', '#9333ea', '#0891b2', '#d97706'];
@@ -48,7 +48,7 @@ export default function ConfiabilidadPage() {
     <div>
       <PageHeader
         title="Confiabilidad de proveedor"
-        description="Cumplimiento histórico de cada proveedor: unidades entregadas frente a unidades solicitadas, y su evolución en el tiempo."
+        description="Cumplimiento histórico de cada proveedor (unidades entregadas frente a solicitadas), su evolución en el tiempo y cuántos días tarda en entregar."
       />
 
       <DataState
@@ -194,6 +194,18 @@ function ProveedorCard({ proveedor, index }) {
             </p>
           )}
         </div>
+      </div>
+
+      <div className="mt-4 border-t border-slate-100 pt-3">
+        <p className="text-[11px] font-medium text-slate-400">Tiempo de entrega</p>
+        {proveedor.tiempoEntrega ? (
+          <p className="tnum mt-0.5 text-sm text-slate-600">
+            {decimal(proveedor.tiempoEntrega.promedio)} ± {decimal(proveedor.tiempoEntrega.desviacion)} días
+            <span className="text-xs text-slate-400"> · {numero(proveedor.tiempoEntrega.muestras)} entregas</span>
+          </p>
+        ) : (
+          <p className="mt-0.5 text-xs text-slate-400">Sin entregas con fecha de pedido</p>
+        )}
       </div>
 
       {puntos.length > 1 && (

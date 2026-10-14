@@ -38,6 +38,7 @@ export async function registrarMovimiento({
   tipo,
   cantidad,
   cantidadSolicitada,
+  fechaPedido,
   fecha,
   usuarioId,
 }) {
@@ -66,6 +67,7 @@ export async function registrarMovimiento({
         tipo,
         cantidad,
         cantidadSolicitada: esEntrada ? cantidadSolicitada ?? null : null,
+        fechaPedido: esEntrada ? fechaPedido ?? null : null,
         fecha: fecha ?? new Date(),
       },
       include: { producto: RESUMEN_DE_PRODUCTO, usuario: RESUMEN_DE_USUARIO },

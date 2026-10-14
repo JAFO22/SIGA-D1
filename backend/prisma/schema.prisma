@@ -69,6 +69,7 @@ model Movimiento {
   tipo               TipoMovimiento
   cantidad           Int
   cantidadSolicitada Int?
+  fechaPedido        DateTime?
 
   fecha     DateTime @default(now())
   createdAt DateTime @default(now())

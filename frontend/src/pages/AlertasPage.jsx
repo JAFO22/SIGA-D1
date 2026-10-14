@@ -62,6 +62,12 @@ export default function AlertasPage() {
       render: (f) => `${decimal(f.ritmoVentaDiario)} u`,
     },
     {
+      clave: 'stockSeguridad',
+      titulo: 'Stock de seguridad',
+      align: 'right',
+      render: (f) => <StockSeguridadCelda item={f} />,
+    },
+    {
       clave: 'diasRestantes',
       titulo: 'Cobertura',
       render: (f) => <CoberturaCelda item={f} config={config} />,
@@ -92,7 +98,7 @@ export default function AlertasPage() {
         skeleton={
           <div className="space-y-6">
             <div className="skeleton h-24 rounded-xl" />
-            <TableSkeleton columnas={5} />
+            <TableSkeleton columnas={6} />
           </div>
         }
       >
@@ -161,10 +167,30 @@ export default function AlertasPage() {
             stock es cero; <b className="text-slate-500">Atención</b> hasta {config.diasAmarillo} días;{' '}
             <b className="text-slate-500">Óptimo</b> por encima. El consumo diario son las unidades de las
             últimas {config.ventasMuestra} salidas divididas entre los días transcurridos desde la
-            primera de ellas hasta hoy.
+            primera de ellas hasta hoy. El <b className="text-slate-500">stock de seguridad</b> es el
+            colchón que cubre la variación de las ventas de los últimos {config.diasVentanaDemanda} días
+            y la del tiempo de entrega del proveedor con un nivel de servicio del{' '}
+            {Math.round(config.nivelServicio * 100)} % (z = {config.z.toLocaleString('es-CO')}): SS = z · √(L · σ
+            <sub>d</sub>² + d² · σ<sub>L</sub>²).
           </p>
         )}
       </DataState>
+    </div>
+  );
+}
+
+function StockSeguridadCelda({ item }) {
+  if (item.stockSeguridad === null) {
+    return <span className="text-xs text-slate-400">Sin datos de entrega</span>;
+  }
+  return (
+    <div>
+      <span className={cn('tnum text-sm font-medium', item.bajoStockSeguridad ? 'text-risk-critico' : 'text-slate-700')}>
+        {numero(item.stockSeguridad)} u
+      </span>
+      <p className="text-xs text-slate-400">
+        {item.bajoStockSeguridad ? 'Stock por debajo' : `entrega ~${decimal(item.tiempoEntregaPromedio)} d`}
+      </p>
     </div>
   );
 }

@@ -13,11 +13,30 @@ import { useFetch } from '../hooks/useFetch.js';
 import { listarProductos } from '../services/productos.service.js';
 import { listarMovimientos, registrarMovimiento } from '../services/movimientos.service.js';
 import { TIPO_MOVIMIENTO } from '../lib/constantes.js';
-import { numero, fechaHora } from '../lib/format.js';
+import { numero, fechaHora, diaLocal } from '../lib/format.js';
 import { IconArrowDown, IconArrowUp, IconMovements } from '../components/icons.jsx';
 import { cn } from '../lib/cn.js';
 
-const FORM_INICIAL = { productoId: '', tipo: 'SALIDA', cantidad: '', cantidadSolicitada: '' };
+const FORM_INICIAL = {
+  productoId: '',
+  tipo: 'SALIDA',
+  cantidad: '',
+  cantidadSolicitada: '',
+  fechaPedido: '',
+};
+
+const DESFASE_DE_LA_TIENDA = '-05:00';
+const MILISEGUNDOS_POR_DIA = 24 * 60 * 60 * 1000;
+
+function inicioDelDiaEnLaTienda(dia) {
+  return `${dia}T00:00:00${DESFASE_DE_LA_TIENDA}`;
+}
+
+function diasDeEntrega(movimiento) {
+  const desde = Date.parse(diaLocal(movimiento.fechaPedido));
+  const hasta = Date.parse(diaLocal(movimiento.fecha));
+  return Math.round((hasta - desde) / MILISEGUNDOS_POR_DIA);
+}
 
 export default function MovimientosPage() {
   const toast = useToast();
@@ -46,6 +65,9 @@ export default function MovimientosPage() {
       };
       if (esEntrada && form.cantidadSolicitada !== '') {
         payload.cantidadSolicitada = Number(form.cantidadSolicitada);
+      }
+      if (esEntrada && form.fechaPedido !== '') {
+        payload.fechaPedido = inicioDelDiaEnLaTienda(form.fechaPedido);
       }
       const creado = await registrarMovimiento(payload);
       toast.exito(
@@ -126,6 +148,18 @@ export default function MovimientosPage() {
               />
             )}
 
+            {esEntrada && (
+              <Field
+                label="Fecha en que se hizo el pedido"
+                name="fechaPedido"
+                type="date"
+                max={diaLocal(new Date())}
+                value={form.fechaPedido}
+                onChange={cambiar}
+                hint="Opcional. Mide cuántos días tarda el proveedor y alimenta el stock de seguridad."
+              />
+            )}
+
             <Button type="submit" cargando={enviando} className="w-full">
               {enviando ? 'Registrando…' : 'Registrar movimiento'}
             </Button>
@@ -169,6 +203,11 @@ export default function MovimientosPage() {
                   {m.cantidadSolicitada != null && (
                     <span className="hidden text-xs text-slate-400 sm:block">
                       pedido {numero(m.cantidadSolicitada)}
+                    </span>
+                  )}
+                  {m.fechaPedido != null && (
+                    <span className="hidden text-xs text-slate-400 sm:block">
+                      llegó en {numero(diasDeEntrega(m))} d
                     </span>
                   )}
                   <span

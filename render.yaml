@@ -37,6 +37,12 @@ services:
         value: 3
       - key: VENTAS_MUESTRA
         value: 5
+      - key: NIVEL_SERVICIO
+        value: 0.95
+      - key: DEMANDA_DIAS_VENTANA
+        value: 28
+      - key: TIEMPO_ENTREGA_MUESTRA
+        value: 10
       - key: SEED_ADMIN_PASSWORD
         sync: false
       - key: SEED_EMPLEADO_PASSWORD

@@ -76,6 +76,14 @@ if (diasRojo >= diasAmarillo) {
   );
 }
 
+const nivelServicio = leerNumeroPositivo('NIVEL_SERVICIO', 0.95);
+
+if (nivelServicio >= 1) {
+  throw configuracionInvalida(
+    `NIVEL_SERVICIO (${nivelServicio}) debe ser una probabilidad menor que 1, por ejemplo 0.95`,
+  );
+}
+
 export const env = Object.freeze({
   puerto: leerNumeroPositivo('PORT', 4000),
   entorno,
@@ -94,6 +102,12 @@ export const env = Object.freeze({
     diasAmarillo,
     diasRojo,
     ventasMuestra: leerNumeroPositivo('VENTAS_MUESTRA', 5),
+  }),
+
+  abastecimiento: Object.freeze({
+    nivelServicio,
+    diasVentanaDemanda: leerNumeroPositivo('DEMANDA_DIAS_VENTANA', 28),
+    entregasMuestra: leerNumeroPositivo('TIEMPO_ENTREGA_MUESTRA', 10),
   }),
 
   historial: Object.freeze({

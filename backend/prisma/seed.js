@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { ROLES, TIPO_MOVIMIENTO } from '../src/domain/constantes.js';
 import { calcularCumplimiento } from '../src/domain/calculos.js';
-import { diaDe, instanteEnLaTienda } from '../src/domain/fechas.js';
+import { diaDe, instanteEnLaTienda, sumarDias } from '../src/domain/fechas.js';
 import { cifrarContrasena } from '../src/lib/contrasenas.js';
 
 const prisma = new PrismaClient();
@@ -25,9 +25,9 @@ const rng = crearRng(20260902);
 const enteroEntre = (min, max) => Math.floor(rng() * (max - min + 1)) + min;
 
 const PROVEEDORES = [
-  { nombre: 'Latti', factorEntrega: 0.97 },
-  { nombre: 'Alpina', factorEntrega: 0.88 },
-  { nombre: 'Colanta', factorEntrega: 0.72 },
+  { nombre: 'Latti', factorEntrega: 0.97, diasDeEntrega: [1, 1, 1, 2] },
+  { nombre: 'Alpina', factorEntrega: 0.88, diasDeEntrega: [1, 2, 2, 3] },
+  { nombre: 'Colanta', factorEntrega: 0.72, diasDeEntrega: [2, 3, 4, 5] },
 ];
 
 const PRODUCTOS = [
@@ -161,12 +161,14 @@ async function main() {
         const entregada = Math.max(1, Math.round(solicitada * factor));
 
         const fechaEntrada = aLasEnLaTienda(dia, '08:00');
+        const diasDeEntrega = proveedor.diasDeEntrega[enteroEntre(0, proveedor.diasDeEntrega.length - 1)];
         movimientos.push({
           productoId: producto.id,
           usuarioId: rng() < 0.5 ? idEmpleado : idAdmin,
           tipo: TIPO_MOVIMIENTO.ENTRADA,
           cantidad: entregada,
           cantidadSolicitada: solicitada,
+          fechaPedido: aLasEnLaTienda(sumarDias(dia, -diasDeEntrega), '15:00'),
           fecha: fechaEntrada,
         });
 

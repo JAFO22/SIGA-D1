@@ -86,6 +86,11 @@ nadie registra ventas, con el paso de los días los productos dejan de estar en 
 todos pasan a verde. Es el comportamiento correcto, pero en una demostración conviene
 partir de datos recientes.
 
+También hace falta después de actualizar a la versión con **tiempo de entrega**: las
+entradas antiguas no tienen fecha de pedido, así que el stock de seguridad aparece como
+"Sin datos de entrega" hasta que se registren entradas nuevas con esa fecha o se regeneren
+los datos.
+
 El plan gratuito no incluye la consola (**Shell**) de Render, así que se hace con una
 variable de entorno:
 

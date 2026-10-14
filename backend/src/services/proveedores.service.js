@@ -3,6 +3,7 @@ import { env } from '../config/env.js';
 import { AppError } from '../utils/AppError.js';
 import { TIPO_MOVIMIENTO } from '../domain/constantes.js';
 import { calcularCumplimiento } from '../domain/calculos.js';
+import { calcularTiempoEntrega } from '../domain/abastecimiento.js';
 
 export function listarProveedores() {
   return prisma.proveedor.findMany({
@@ -98,6 +99,31 @@ export async function historialCumplimiento(id) {
   return puntos.reverse();
 }
 
+async function entregasConFechaDePedido(proveedorId) {
+  return prisma.movimiento.findMany({
+    where: { tipo: TIPO_MOVIMIENTO.ENTRADA, fechaPedido: { not: null }, producto: { proveedorId } },
+    orderBy: { fecha: 'desc' },
+    take: env.abastecimiento.entregasMuestra,
+    select: { fecha: true, fechaPedido: true },
+  });
+}
+
+export async function tiemposDeEntregaPorProveedor(proveedorIds) {
+  const tiempos = await Promise.all(
+    proveedorIds.map(async (id) => [id, calcularTiempoEntrega(await entregasConFechaDePedido(id))]),
+  );
+  return new Map(tiempos);
+}
+
+function redondearTiempoEntrega(tiempo) {
+  if (!tiempo) return null;
+  return {
+    promedio: Math.round(tiempo.promedio * 100) / 100,
+    desviacion: Math.round(tiempo.desviacion * 100) / 100,
+    muestras: tiempo.muestras,
+  };
+}
+
 export async function confiabilidadGeneral() {
   const proveedores = await prisma.proveedor.findMany({
     orderBy: { nombre: 'asc' },
@@ -110,11 +136,14 @@ export async function confiabilidadGeneral() {
     },
   });
 
+  const tiemposDeEntrega = await tiemposDeEntregaPorProveedor(proveedores.map((p) => p.id));
+
   return proveedores.map((proveedor) => ({
     id: proveedor.id,
     nombre: proveedor.nombre,
     porcentajeCumplimiento: proveedor.porcentajeCumplimiento,
     productos: proveedor._count.productos,
+    tiempoEntrega: redondearTiempoEntrega(tiemposDeEntrega.get(proveedor.id)),
     tendencia: proveedor.historialCumplimiento
       .map((punto) => ({
         fecha: punto.fecha,

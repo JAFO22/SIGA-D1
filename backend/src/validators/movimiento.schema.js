@@ -3,6 +3,10 @@ import { TIPO_MOVIMIENTO } from '../domain/constantes.js';
 
 const CANTIDAD_MAXIMA = 100_000;
 
+const fechaNoFutura = z.coerce.date().refine((f) => f.getTime() <= Date.now(), {
+  message: 'La fecha no puede estar en el futuro',
+});
+
 const cantidad = z.coerce
   .number()
   .int('La cantidad debe ser un numero entero')
@@ -17,12 +21,8 @@ export const crearMovimientoSchema = z
     }),
     cantidad,
     cantidadSolicitada: cantidad.optional(),
-    fecha: z.coerce
-      .date()
-      .refine((f) => f.getTime() <= Date.now(), {
-        message: 'La fecha no puede estar en el futuro',
-      })
-      .optional(),
+    fechaPedido: fechaNoFutura.optional(),
+    fecha: fechaNoFutura.optional(),
   })
   .refine(
     (d) => d.tipo === TIPO_MOVIMIENTO.ENTRADA || d.cantidadSolicitada === undefined,
@@ -30,7 +30,15 @@ export const crearMovimientoSchema = z
       path: ['cantidadSolicitada'],
       message: 'La cantidad solicitada solo aplica a movimientos de ENTRADA',
     },
-  );
+  )
+  .refine((d) => d.tipo === TIPO_MOVIMIENTO.ENTRADA || d.fechaPedido === undefined, {
+    path: ['fechaPedido'],
+    message: 'La fecha del pedido solo aplica a movimientos de ENTRADA',
+  })
+  .refine((d) => d.fechaPedido === undefined || d.fechaPedido <= (d.fecha ?? new Date()), {
+    path: ['fechaPedido'],
+    message: 'La fecha del pedido no puede ser posterior a la entrega',
+  });
 
 export const listarMovimientosQuery = z.object({
   productoId: z.coerce.number().int().positive().optional(),
